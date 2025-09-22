@@ -2,25 +2,21 @@ const API_BASE = 'http://localhost:4000'; // backend principal
 
 document.addEventListener('DOMContentLoaded', function () {
     const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
     const extraRegisterForm = document.getElementById('form-registro'); // nuevo formulario
     const loginBox = document.querySelector('.login-box');
     const registerBox = document.querySelector('.register-box');
-    const registerLink = document.querySelector('.register-link a');
     const loginLink = document.querySelector('.login-link a');
 
-    // ===== Alternar login/registro =====
-    registerLink.addEventListener('click', e => {
-        e.preventDefault();
-        loginBox.classList.add('hidden');
-        registerBox.classList.remove('hidden');
-    });
-
-    loginLink.addEventListener('click', e => {
-        e.preventDefault();
-        registerBox.classList.add('hidden');
-        loginBox.classList.remove('hidden');
-    });
+    // ===== Alternar login/registro SOLO si usas registerBox en la misma página =====
+    if (loginLink) {
+        loginLink.addEventListener('click', e => {
+            e.preventDefault();
+            if (registerBox && loginBox) {
+                registerBox.classList.add('hidden');
+                loginBox.classList.remove('hidden');
+            }
+        });
+    }
 
     // ===== Login =====
     if (loginForm) {
@@ -31,11 +27,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
             try {
                 const response = await fetch(`${API_BASE}/api/auth/login`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email, password })
-});
-
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
 
                 const data = await response.json();
 
@@ -50,58 +45,6 @@ document.addEventListener('DOMContentLoaded', function () {
             } catch (error) {
                 console.error('Error:', error);
                 alert('Error al intentar iniciar sesión');
-            }
-        });
-    }
-
-    // ===== Registro simple (desde login/registro con nombre, apellidos, etc.) =====
-    if (registerForm) {
-        registerForm.addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const nombre = document.getElementById('nombre').value;
-            const apellidos = document.getElementById('apellidos').value;
-            const email = document.getElementById('email').value;
-            const telefono = document.getElementById('telefono').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const terms = document.getElementById('terms').checked;
-
-            if (password !== confirmPassword) {
-                alert('Las contraseñas no coinciden');
-                return;
-            }
-
-            if (!terms) {
-                alert('Debes aceptar los términos y condiciones');
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_BASE}/api/auth/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        nombre_completo: `${nombre} ${apellidos}`,
-                        email,
-                        password,
-                        matricula: telefono,
-                        rol: 'Usuario',   // 🔹 valor por defecto
-                        estado: 'Activo'  // 🔹 valor por defecto
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    alert('Registro exitoso');
-                    loginBox.classList.remove('hidden');
-                    registerBox.classList.add('hidden');
-                } else {
-                    alert(data.message || 'Error en el registro');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error al intentar registrar');
             }
         });
     }
@@ -141,28 +84,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ===== Recuperación de contraseña =====
-    const forgotLink = document.getElementById('forgotLink');
-    const modal = document.getElementById('forgotModal');
-    const closeModal = document.getElementById('closeModal');
-    const sendRecover = document.getElementById('sendRecover');
-    const recoverMessage = document.getElementById('recoverMessage');
-    const recoverIdentifier = document.getElementById('recoverIdentifier');
+        // ===== Recuperación de contraseña =====
+        // ===== Recuperación de contraseña (versión robusta con logging y múltiples criterios) =====
+        sendRecover.addEventListener('click', async (ev) => {
+            // Evitar comportamiento por defecto si el botón está dentro de un form
+            if (ev && typeof ev.preventDefault === 'function') ev.preventDefault();
 
-    if (forgotLink && modal) {
-        forgotLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            recoverMessage.textContent = '';
-            recoverIdentifier.value = '';
-            modal.classList.remove('hidden');
-        });
-
-        closeModal.addEventListener('click', () => modal.classList.add('hidden'));
-        modal.addEventListener('click', e => {
-            if (e.target === modal) modal.classList.add('hidden');
-        });
-
-        sendRecover.addEventListener('click', async () => {
             const id = recoverIdentifier.value.trim();
             if (!id) {
                 recoverMessage.style.color = 'red';
@@ -170,6 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            // Mensaje de estado
             recoverMessage.style.color = 'black';
             recoverMessage.textContent = 'Enviando...';
 
@@ -180,22 +108,50 @@ document.addEventListener('DOMContentLoaded', function () {
                     body: JSON.stringify({ identifier: id })
                 });
 
-                const data = await res.json();
+                // leer texto/crudo por si no es JSON válido
+                const text = await res.text();
+                let data;
+                try { data = JSON.parse(text); } catch (e) { data = { raw: text }; }
 
-                if (res.ok) {
+                console.log('Respuesta /status:', res.status, 'body:', data);
+
+                // Criterios de éxito (intenta cubrir varias respuestas comunes)
+                const mensaje = (data && (data.message || data.msg || data.msg_es)) || (data && data.raw) || '';
+                const successFlag = data && (data.success === true || data.ok === true);
+                const foundFlag = (mensaje && mensaje.toString().toLowerCase().includes('usuario')) ||
+                                (mensaje && mensaje.toString().toLowerCase().includes('encontrado')) ||
+                                (mensaje && mensaje.toString().toLowerCase().includes('found')) ||
+                                successFlag ||
+                                res.status === 200;
+
+                if (res.ok || foundFlag) {
+                    // Mostrar mensaje del backend si lo hay
                     recoverMessage.style.color = 'green';
-                    recoverMessage.textContent = data.message || 'Revisa tu correo para un enlace de restablecimiento.';
-                } else {
-                    recoverMessage.style.color = 'red';
-                    recoverMessage.textContent = data.message || 'No se pudo enviar el enlace.';
+                    recoverMessage.textContent = mensaje || 'Revisa tu correo para un enlace de restablecimiento.';
+
+                    // Redirigir (usa ruta absoluta si tu html está en otra carpeta)
+                    // Cambia '/reset-password.html' a 'reset-password.html' según tu estructura.
+                    setTimeout(() => {
+                        window.location.href = 'reset-password.html';
+                    }, 1200);
+                    return;
                 }
+
+                // Si llegamos aquí: error
+                recoverMessage.style.color = 'red';
+                // intenta mostrar distintos campos de error
+                const errMsg = (data && (data.error || data.message || data.msg)) || `Error del servidor (status ${res.status})`;
+                recoverMessage.textContent = errMsg;
             } catch (err) {
+                console.error('Fetch error forgot-password:', err);
                 recoverMessage.style.color = 'red';
                 recoverMessage.textContent = 'Error de conexión con el servidor.';
-                console.error(err);
-            }
+                }
         });
-    }
+
+
+    
 });
+
 
 

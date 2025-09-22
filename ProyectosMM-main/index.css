@@ -118,41 +118,7 @@ input[type="tel"] {
     letter-spacing: 1px;
 }
 
-/* Estilos para el formulario de registro */
-.register-box {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-    margin: 20px;
-}
 
-.form-row {
-    display: flex;
-    gap: 15px;
-}
-
-.form-row .input-group {
-    flex: 1;
-}
-
-.terms {
-    margin: 20px 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.terms input[type="checkbox"] {
-    width: auto;
-}
-
-.terms label {
-    font-size: 14px;
-    color: #666;
-}
 
 /* Clase para mostrar/ocultar elementos */
 .hidden {
