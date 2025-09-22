@@ -123,30 +123,53 @@ input[type="tel"] {
 /* Clase para mostrar/ocultar elementos */
 .hidden {
     display: none !important;
-} 
+}
+
 .modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.45);
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.4);
   display: flex;
-  justify-content:center;
   align-items: center;
-  z-index: 9999;
+  justify-content: center;
+  z-index: 999;
 }
-.modal.hidden { display: none; }
+
 .modal-content {
   background: #fff;
-  padding: 22px;
+  padding: 20px;
   border-radius: 8px;
-  width: 90%;
-  max-width: 420px;
-  box-shadow: 0 6px 30px rgba(0,0,0,0.2);
+  width: 320px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
+
 .modal-close {
   float: right;
-  font-size: 22px;
+  font-size: 20px;
   cursor: pointer;
+}
+.modal {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.modal:not(.hidden) {
+  opacity: 1;
+  pointer-events: auto;
+}
+.forgot-link {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.forgot-link a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.forgot-link a:hover {
+  text-decoration: underline;
 }
