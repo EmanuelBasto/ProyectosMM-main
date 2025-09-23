@@ -26,7 +26,7 @@ document.getElementById("resetForm").addEventListener("submit", async function (
     });
 
     const data = await response.json();
-
+    //Si funciona el cambio de contraseña
     if (response.ok && data.ok) {
       alert("✅ Cambio de contraseña exitoso.");
       setTimeout(() => {
