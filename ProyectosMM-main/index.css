@@ -1,57 +1,88 @@
-.login-container {
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Contenedor principal */
+body {
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    background: #f5f5f5;
-    padding: 20px;
+    background: #f7f7f7;
 }
 
+/* Panel general dividido */
+.login-container {
+    display: flex;
+    width: 900px;
+    height: 520px;
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+/* Panel izquierdo */
 .panel-izquierdo {
     flex: 1;
-    background-image: url('/imagenes/saladeprensa_menu.jpg');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: center ; /* Ocupa todo el panel */
-    min-height: 100vh;
+    background: #7f0222; /* color primario */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    padding: 30px;
+    text-align: center;
 }
 
+.panel-izquierdo img {
+    width: 120px;
+    margin-bottom: 20px;
+}
+
+.panel-izquierdo h1 {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.panel-izquierdo p {
+    font-size: 15px;
+    color: #f2f2f2;
+}
+
+/* Panel derecho */
 .panel-derecho {
     flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #ffffff;
-    min-height: 100vh;
-}
-
-.login-container {
-    display: flex;
-    min-height: 100vh;
-    padding: 0;
+    background: #fff;
 }
 
 .login-box {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-    margin: 20px;
+    width: 80%;
+    max-width: 350px;
 }
 
 .login-box h2 {
     text-align: center;
-    color: #333;
-    margin-bottom: 1.5rem;
+    margin-bottom: 25px;
+    color: #7f0222;
 }
 
+/* Inputs */
 .input-group {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .input-group label {
+    font-size: 14px;
+    font-weight: 600;
     display: block;
     margin-bottom: 5px;
     color: #333;
@@ -61,115 +92,132 @@
 .input-group input {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    transition: 0.3s;
 }
 
 .input-group input:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    border-color: #d19800;
+    box-shadow: 0 0 5px rgba(209, 152, 0, 0.5);
 }
 
-.input-group input::placeholder {
-    color: #999;
-    opacity: 1;
-}
-
+/* Botón login */
 .login-btn {
     width: 100%;
     padding: 12px;
-    background: #007bff;
+    background: #7f0222;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 16px;
+    font-weight: bold;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: 0.3s;
 }
 
 .login-btn:hover {
-    background: #0056b3;
+    background: #d19800;
+    color: #fff;
 }
 
-.register-link, .login-link {
+/* Links */
+.register-link, .forgot-link {
     text-align: center;
-    margin-top: 20px;
+    margin-top: 10px;
+    font-size: 14px;
 }
 
-.register-link a, .login-link a {
-    color: #007bff;
+.register-link a, .forgot-link a {
+    color: #7f0222;
     text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
 }
 
-.register-link a:hover, .login-link a:hover {
-    text-decoration: underline;
+.register-link a:hover, .forgot-link a:hover {
+    color: #d19800;
 }
 
-/* Estilos para el placeholder */
-::placeholder {
-    color: #999;
-    opacity: 1;
-}
-
-/* Estilos para el input de teléfono */
-input[type="tel"] {
-    letter-spacing: 1px;
-}
-
-
-
-/* Clase para mostrar/ocultar elementos */
-.hidden {
-    display: none !important;
-}
-
+/* Modal recuperar */
 .modal {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.hidden {
+    display: none;
 }
 
 .modal-content {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  width: 320px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    width: 380px;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
 }
 
 .modal-close {
-  float: right;
-  font-size: 20px;
-  cursor: pointer;
+    float: right;
+    font-size: 20px;
+    cursor: pointer;
+    color: #7f0222;
 }
-.modal {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
+        /* Extra para responsividad */
+        @media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+                width: 95%;
+                height: auto;
+            }
 
-.modal:not(.hidden) {
-  opacity: 1;
-  pointer-events: auto;
-}
-.forgot-link {
-  text-align: center;
-  margin-top: 10px;
-}
+            .panel-izquierdo, .panel-derecho {
+                flex: none;
+                width: 100%;
+                padding: 20px;
+                height: auto;
+            }
 
-.forgot-link a {
-  color: #007bff;
-  text-decoration: none;
-  font-size: 0.95rem;
-}
+            .panel-izquierdo {
+                text-align: center;
+            }
 
-.forgot-link a:hover {
-  text-decoration: underline;
+            .panel-izquierdo img {
+                width: 90px;
+                margin-bottom: 15px;
+            }
+
+            .login-box {
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-box h2 {
+                font-size: 20px;
+            }
+
+            .input-group input {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .login-btn {
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+.panel-izquierdo img {
+  max-width: 260px;
+  opacity: 0.95;
 }

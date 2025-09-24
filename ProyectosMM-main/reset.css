@@ -6,7 +6,7 @@
 }
 
 body {
-  background: #f0f0f0;
+  background: #f5f5f5;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -18,14 +18,14 @@ body {
   max-width: 400px;
   background: #fff;
   padding: 30px;
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow: 0 6px 20px rgba(0,0,0,0.08);
 }
 
 h2 {
   margin-bottom: 20px;
   font-size: 1.6rem;
-  color: #333;
+  color: #800020; /* mismo rojo vino */
   text-align: center;
 }
 
@@ -51,7 +51,7 @@ input {
 .btn {
   width: 100%;
   padding: 12px;
-  background: #007bff;
+  background: #800020; /* rojo vino */
   color: white;
   border: none;
   border-radius: 6px;
@@ -61,7 +61,7 @@ input {
 }
 
 .btn:hover {
-  background: #0056b3;
+  background: #5a0016;
 }
 
 .message {
@@ -77,3 +77,16 @@ input {
 .success {
   color: #0a8a00;
 }
+
+.login-link {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.login-link a {
+  color: #800020;
+  text-decoration: underline;
+  cursor: pointer;
+}
+

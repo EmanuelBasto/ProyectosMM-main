@@ -7,9 +7,9 @@
   <link rel="stylesheet" href="registrar.css" />
 </head>
 <body>
-
+  
   <div class="panel-izquierdo">
-    <!--linl de la foto-->
+    <img src="imagenes/f1ae3b8a-22f3-4df7-bd4e-6e6ff28bdfa8.png" alt="Logo Sesiones de Tutorías">
   </div>
 
   <div class="panel-derecho">
@@ -17,7 +17,7 @@
       <h2>Crear Cuenta</h2>
       <form id="registerForm">
         <div class="input-group">
-          <label for="nombre_completo">Nombre completo</label>
+          <label for="nombre">Nombre completo</label>
           <input type="text" id="nombre" placeholder="Tu nombre" required>
         </div>
         <div class="input-group">
@@ -33,7 +33,6 @@
           <input type="password" id="confirmPassword" placeholder="Confirma tu contraseña" required>
         </div>
 
-        <!-- NUEVO: selección de rol -->
         <div class="input-group">
           <label for="rolSelect">Selecciona tu rol</label>
           <select id="rolSelect" required>
@@ -44,11 +43,13 @@
         </div>
 
         <div class="terms">
-            <input type="checkbox" id="terms" required>
-            <label for="terms">Acepto los términos y condiciones</label>
+          <input type="checkbox" id="terms" required>
+          <label for="terms">Acepto los términos y condiciones</label>
         </div>
+
         <button type="submit" class="btn" id="submitBtn">Registrarse</button>
         <div id="msg" role="status" style="margin-top:10px;"></div>
+
         <div class="login-link">
           ¿Ya tienes cuenta? <a href="index.html">Inicia sesión aquí</a>
         </div>
@@ -58,4 +59,5 @@
  <script src="registrar.js"></script>
 </body>
 </html>
+
 
