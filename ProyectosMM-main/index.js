@@ -10,24 +10,27 @@ document.addEventListener('DOMContentLoaded', function () {
     const forgotModal = document.getElementById('forgotModal');
     const closeModal = document.getElementById('closeModal');
 
-    
-    forgotLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    forgotModal.classList.remove("hidden");
-    forgotModal.style.display = "flex"; // o "block", según tu diseño
+    // --- Elementos relacionados con recuperación (asegúrate de tener estos IDs en tu HTML) ---
+    const sendRecover = document.getElementById('sendRecover');           // botón/enlace que envía la solicitud
+    const recoverIdentifier = document.getElementById('recoverIdentifier'); // input para email/matrícula
+    const recoverMessage = document.getElementById('recoverMessage');     // contenedor para mensajes al usuario
+
+    forgotLink && forgotLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        forgotModal.classList.remove("hidden");
+        forgotModal.style.display = "flex"; // o "block", según tu diseño
     });
 
-    closeModal.addEventListener('click', () => {
-    forgotModal.classList.add("hidden");
-    forgotModal.style.display = "none";
+    closeModal && closeModal.addEventListener('click', () => {
+        forgotModal.classList.add("hidden");
+        forgotModal.style.display = "none";
     });
 
-    forgotModal.addEventListener('click', (e) => {
-    if (e.target === forgotModal) {
-        forgotModal.classList.add('hidden');
-    }
+    forgotModal && forgotModal.addEventListener('click', (e) => {
+        if (e.target === forgotModal) {
+            forgotModal.classList.add('hidden');
+        }
     });
-
 
 
 
@@ -43,35 +46,55 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ===== Login =====
-    if (loginForm) {
-        loginForm.addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
+    // ===== Login =====
+if (loginForm) {
+    loginForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
 
-            try {
-                const response = await fetch(`${API_BASE}/api/auth/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
+        try {
+            const response = await fetch(`${API_BASE}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
 
-                const data = await response.json();
+            const data = await response.json();
 
-                if (response.ok) {
-                    localStorage.setItem('userEmail', email);
-                    alert('Login exitoso');
-                    // 🔥 Redirige a la página de bienvenida
-                    window.location.href = 'bienvenida.html';
-                } else {
-                    alert(data.message || 'Credenciales incorrectas');
+            if (response.ok) {
+                localStorage.setItem('userEmail', email);
+
+                // 🔥 Detectar matrícula (puede venir de backend o del campo email)
+                const matricula = data.usuario?.matricula || "";
+                const rol = data.usuario?.rol || "";
+ 
+                
+                if (!matricula) {
+                    alert("No se pudo determinar el tipo de usuario.");
+                    return;
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error al intentar iniciar sesión');
+
+                // 🔍 Validar prefijo
+                if (rol.toLowerCase().includes("admin")) {
+                    window.location.href = "Interfaces/admin/admin.html";
+                } else if (rol.toLowerCase().includes("tutor")) {
+                    window.location.href = "Interfaces/tutores/Tutores.html";
+                } else if (rol.toLowerCase().includes("alum")) {
+                    window.location.href = "Interfaces/alumnos/Alumnos.html";
+                } else {
+                    alert("Rol no reconocido");
+                }
+
+            } else {
+                alert(data.message || 'Credenciales incorrectas');
             }
-        });
-    }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al intentar iniciar sesión');
+        }
+    });
+}
 
     // ===== Registro avanzado (con rol y estado) =====
     if (extraRegisterForm) {
@@ -108,72 +131,111 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-   // ===== Recuperación de contraseña (versión robusta con logging y múltiples criterios) =====
-sendRecover.addEventListener('click', async (ev) => {
-    // Evitar comportamiento por defecto si el botón está dentro de un form
-    if (ev && typeof ev.preventDefault === 'function') ev.preventDefault();
+   // ===== Recuperación de contraseña (validando existencia en DB) =====
+   if (sendRecover) {
+       sendRecover.addEventListener('click', async (ev) => {
+           if (ev && typeof ev.preventDefault === 'function') ev.preventDefault();
 
-    const id = recoverIdentifier.value.trim();
-    if (!id) {
-        recoverMessage.style.color = 'red';
-        recoverMessage.textContent = 'Ingresa tu correo o matrícula.';
-        return;
-    }
+           const id = (recoverIdentifier && recoverIdentifier.value) ? recoverIdentifier.value.trim() : '';
+           if (!id) {
+               if (recoverMessage) {
+                   recoverMessage.style.color = 'red';
+                   recoverMessage.textContent = 'Ingresa tu correo o matrícula.';
+               }
+               return;
+           }
 
-    // Mensaje de estado
-    recoverMessage.style.color = 'black';
-    recoverMessage.textContent = 'Enviando...';
+           // limpiamos cualquier recoverIdentifier previo (evita usar valores viejos)
+           try { localStorage.removeItem('recoverIdentifier'); } catch(e) { /* ignore */ }
 
-    try {
-        const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ identifier: id })
-        });
+           // Mensaje de estado
+           if (recoverMessage) {
+               recoverMessage.style.color = 'black';
+               recoverMessage.textContent = 'Verificando...';
+           }
 
-        // leer texto/crudo por si no es JSON válido
-        const text = await res.text();
-        let data;
-        try { data = JSON.parse(text); } catch (e) { data = { raw: text }; }
+           // bloquear botón mientras se verifica
+           const prevDisabled = sendRecover.disabled;
+           try { sendRecover.disabled = true; } catch (e) { /* ignore */ }
 
-        console.log('Respuesta /status:', res.status, 'body:', data);
+           try {
+               const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
+                   method: 'POST',
+                   headers: { 'Content-Type': 'application/json' },
+                   body: JSON.stringify({ identifier: id })
+               });
 
-        // Criterios de éxito (intenta cubrir varias respuestas comunes)
-        const mensaje = (data && (data.message || data.msg || data.msg_es)) || (data && data.raw) || '';
-        const successFlag = data && (data.success === true || data.ok === true);
-        const foundFlag = (mensaje && mensaje.toString().toLowerCase().includes('usuario')) ||
-                          (mensaje && mensaje.toString().toLowerCase().includes('encontrado')) ||
-                          (mensaje && mensaje.toString().toLowerCase().includes('found')) ||
-                          successFlag ||
-                          res.status === 200;
+               // intentar parsear JSON según content-type
+               const ct = (res.headers.get('content-type') || '').toLowerCase();
+               let data = {};
+               if (ct.includes('application/json')) {
+                   data = await res.json();
+               } else {
+                   const text = await res.text();
+                   try { data = JSON.parse(text); } catch (e) { data = { raw: text }; }
+               }
 
-        if (res.ok || foundFlag) {
-            // Mostrar mensaje del backend si lo hay
-            recoverMessage.style.color = 'green';
-            recoverMessage.textContent = mensaje || 'Revisa tu correo para un enlace de restablecimiento.';
+               console.log('forgot-password ->', res.status, data);
 
-            // Redirigir (usa ruta absoluta si tu html está en otra carpeta)
-            // Cambia '/reset-password.html' a 'reset-password.html' según tu estructura.
-            setTimeout(() => {
-                window.location.href = 'reset-password.html';
-            }, 1200);
-            return;
-        }
+               // Caso explícito: BACKEND RESPONDE 404 -> Usuario no encontrado
+               if (res.status === 404) {
+                   if (recoverMessage) {
+                       recoverMessage.style.color = 'red';
+                       recoverMessage.textContent = 'Usuario no encontrado';
+                   }
+                   return;
+               }
 
-        // Si llegamos aquí: error
-        recoverMessage.style.color = 'red';
-        // intenta mostrar distintos campos de error
-        const errMsg = (data && (data.error || data.message || data.msg)) || `Error del servidor (status ${res.status})`;
-        recoverMessage.textContent = errMsg;
-    } catch (err) {
-        console.error('Fetch error forgot-password:', err);
-        recoverMessage.style.color = 'red';
-        recoverMessage.textContent = 'Error de conexión con el servidor.';
-    }
+               // Si backend devuelve explícitamente { exists: false } o mensaje "no encontrado"/"no existe"
+               const msg = (data && (data.message || data.msg || data.raw || '')).toString().toLowerCase();
+               if ((data && data.exists === false) || msg.includes('no encontrado') || msg.includes('no existe') || msg.includes('not found')) {
+                   if (recoverMessage) {
+                       recoverMessage.style.color = 'red';
+                       recoverMessage.textContent = 'Usuario no encontrado';
+                   }
+                   return;
+               }
+
+               // Caso éxito (200) — sólo aquí guardamos y redirigimos
+               if (res.ok) {
+                   try {
+                       localStorage.setItem('recoverIdentifier', id);
+                   } catch (storageErr) {
+                       console.warn('No se pudo escribir en localStorage:', storageErr);
+                   }
+                   if (recoverMessage) {
+                       recoverMessage.style.color = 'green';
+                       recoverMessage.textContent = (data && (data.message || data.msg)) || 'Revisa tu correo para un enlace de restablecimiento.';
+                   }
+                   setTimeout(() => {
+                       window.location.href = 'reset-password.html';
+                   }, 900);
+                   return;
+               }
+
+               // Otros errores
+               if (recoverMessage) {
+                   recoverMessage.style.color = 'red';
+                   recoverMessage.textContent = (data && (data.error || data.message || data.msg)) || `Error del servidor (status ${res.status})`;
+               }
+
+           } catch (err) {
+               console.error('Fetch error forgot-password:', err);
+               if (recoverMessage) {
+                   recoverMessage.style.color = 'red';
+                   recoverMessage.textContent = 'Error de conexión con el servidor.';
+               }
+           } finally {
+               // re-habilitar botón
+               try { sendRecover.disabled = prevDisabled; } catch(e) { /* ignore */ }
+           }
+       });
+   } else {
+       console.warn('sendRecover no encontrado en el DOM. Asegúrate de tener un elemento con id="sendRecover".');
+   }
+
 });
 
-        
-});
 
 
 

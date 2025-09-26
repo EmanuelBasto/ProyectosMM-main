@@ -1,4 +1,4 @@
-// registrar.js (versión simple: NO genera matrícula en el cliente; deja que el backend la genere)
+// registrar.js (versión: no redirige, muestra y mantiene el mensaje con la matrícula)
 const API_BASE = 'http://localhost:4000'; // ajusta si tu backend está en otra URL/puerto
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -66,12 +66,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const matricula = user?.matricula || '---';
       showMsg(`✅ Usuario creado correctamente. Matrícula: ${matricula}`, false);
 
-      // Redirigir al index después de 2 segundos
-      setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 2000);
-
+      // NO redirigir: dejamos el mensaje desplegado en pantalla
+      // Limpiamos el formulario para que el admin pueda crear otro usuario si quiere
       form.reset();
+
     } catch (err) {
       console.error('[Frontend] Error en registro:', err);
       showMsg('Error inesperado. Revisa la consola y el servidor.', true);
@@ -93,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try { return await response.json(); } catch { return null; }
   }
 });
+
 
 
 

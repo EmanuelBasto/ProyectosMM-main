@@ -1,12 +1,25 @@
+// Al cargar la página, rellenamos automáticamente el campo con el identifier guardado
+document.addEventListener("DOMContentLoaded", () => {
+  const identifierField = document.getElementById("emailOrMatricula");
+  const savedIdentifier = localStorage.getItem("recoverIdentifier");
+
+  if (savedIdentifier) {
+    identifierField.value = savedIdentifier;
+    identifierField.readOnly = true; // para que no se pueda modificar
+  }
+});
+
+// Manejo del formulario de reseteo de contraseña
 document.getElementById("resetForm").addEventListener("submit", async function (e) {
   e.preventDefault();
 
-  const identifier = document.getElementById("emailOrMatricula").value.trim();
+  // Siempre usamos el valor guardado en localStorage
+  const identifier = localStorage.getItem("recoverIdentifier");
   const newPassword = document.getElementById("newPassword").value.trim();
   const confirmPassword = document.getElementById("confirmPassword").value.trim();
 
   if (!identifier) {
-    alert("Por favor ingresa tu correo o matrícula.");
+    alert("No se encontró el correo o matrícula. Regresa al inicio e intenta de nuevo.");
     return;
   }
 
@@ -26,9 +39,10 @@ document.getElementById("resetForm").addEventListener("submit", async function (
     });
 
     const data = await response.json();
-    //Si funciona el cambio de contraseña
+
     if (response.ok && data.ok) {
       alert("✅ Cambio de contraseña exitoso.");
+      localStorage.removeItem("recoverIdentifier"); // limpiamos después de usarlo
       setTimeout(() => {
         window.location.href = "index.html"; // redirigir a login
       }, 1000);
