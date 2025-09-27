@@ -1,4 +1,3 @@
-// registrar.js (versión: no redirige, muestra y mantiene el mensaje con la matrícula)
 const API_BASE = 'http://localhost:4000'; // ajusta si tu backend está en otra URL/puerto
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -12,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const nombre_completo = document.getElementById('nombre').value.trim();
     const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
+    const password = document.getElementById('newPassword').value;           // <-- OJO: ver nota abajo
     const confirmPassword = document.getElementById('confirmPassword').value;
     const rolSeleccionado = document.getElementById('rolSelect').value; // 'alumno' o 'tutor'
 
@@ -31,16 +30,16 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn.textContent = 'Registrando...';
 
     try {
-      // Construimos payload SIN matricula; el backend debe generarla
+      // Enviar en texto plano (HTTPS) y que el backend haga bcrypt
       const payload = {
         nombre_completo,
         email,
         password,
         rol: rolSeleccionado,
-        estado: "activo"
+        estado: 'activo'
       };
 
-      console.log('[Frontend] Enviando payload de registro:', payload);
+      console.log('[Frontend] Enviando payload de registro:', { ...payload, password: '***' });
 
       const resp = await fetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
@@ -52,22 +51,16 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('[Frontend] Respuesta registro:', resp.status, data);
 
       if (!resp.ok) {
-        // Si el backend devuelve campos faltantes, mostrarlos
         if (data && data.missing) {
           return showMsg('Datos incompletos. Faltan: ' + data.missing.join(', '), true);
         }
-        // Mensajes más informativos si vienen del backend
         const serverMsg = data?.message || `Error ${resp.status}`;
         return showMsg('Error: ' + serverMsg, true);
       }
 
-      // Éxito: backend retorna user con matrícula generada
       const user = data?.user;
       const matricula = user?.matricula || '---';
       showMsg(`✅ Usuario creado correctamente. Matrícula: ${matricula}`, false);
-
-      // NO redirigir: dejamos el mensaje desplegado en pantalla
-      // Limpiamos el formulario para que el admin pueda crear otro usuario si quiere
       form.reset();
 
     } catch (err) {
@@ -90,9 +83,27 @@ document.addEventListener('DOMContentLoaded', () => {
   async function safeJson(response) {
     try { return await response.json(); } catch { return null; }
   }
+
+  // ====== Ojitos para mostrar/ocultar contraseña ======
+  // Edge (Chromium) ya trae un ojo nativo. Para evitar duplicado, ocultamos el personalizado solo en Edge.
+  const isEdge = /\bEdg\//.test(navigator.userAgent);
+  if (isEdge) {
+    document.querySelectorAll('.toggle-eye').forEach(btn => { btn.style.display = 'none'; });
+  } else {
+    // Delegación: funciona aunque el botón se renderice después
+    document.addEventListener('mousedown', (ev) => {
+      const btn = ev.target.closest('.toggle-eye');
+      if (btn) ev.preventDefault(); // no pierdas foco del input
+    });
+    document.addEventListener('click', (ev) => {
+      const btn = ev.target.closest('.toggle-eye');
+      if (!btn) return;
+      const id = btn.getAttribute('data-target');
+      const input = document.getElementById(id);
+      if (!input) return;
+      const isHidden = input.type === 'password';
+      input.type = isHidden ? 'text' : 'password';
+      btn.classList.toggle('revealed', isHidden);
+    });
+  }
 });
-
-
-
-
-

@@ -1,38 +1,150 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Panel de Administrador</title>
-  <link rel="stylesheet" href="admin.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión - Administrador</title>
+    <link rel="stylesheet" href="admin.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-  <header>
-    <h1>Panel de Administrador</h1>
-    <nav>
-      <a href="#">Inicio</a>
-      <a href="#">Usuarios</a>
-      <a href="#">Reportes</a>
-      <a href="/index.html">Cerrar Sesión</a>
-    </nav>
-  </header>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <h1>Administrador</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-count">3</span>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">Admin User</span>
+                        <div class="user-avatar">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
 
-  <main>
-    <section>
-      <h2>Gestión de Usuarios</h2>
-      <button>Agregar Tutor</button>
-      <button>Agregar Alumno</button>
-    </section>
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <ul>
+                    <li class="nav-item active">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span>Tutores</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Estudiantes</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-book"></i>
+                            <span>Cursos</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Horarios</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Reportes</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-cog"></i>
+                            <span>Configuración</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
 
-    <section>
-      <h2>Estadísticas</h2>
-      <p>Total de Tutores: 5</p>
-      <p>Total de Alumnos: 30</p>
-      <p>Sesiones Activas: 12</p>
-    </section>
-  </main>
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <h2>Dashboard Administrativo</h2>
+                <p>Gestiona todo el sistema de tutores y estudiantes</p>
+            </div>
 
-  <footer>
-    <p>© 2025 Sistema de Tutorías</p>
-  </footer>
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        
+                        <p>Total Usuarios</p>
+                        <span class="stat-change positive"></span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <div class="stat-content">
+                        
+                        <p>Tutores Activos</p>
+                        <span class="stat-change positive"></span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="stat-content">
+                        
+                        <p>Estudiantes</p>
+                        <span class="stat-change positive"></span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="stat-content">
+                        
+                        <p>Cursos Activos</p>
+                        <span class="stat-change positive"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Recent Activity -->
+                
+                
+            </div>
+
+            <!-- Data Tables -->
+            
+        </main>
+    </div>
+
+    <script src="admin.js"></script>
 </body>
 </html>

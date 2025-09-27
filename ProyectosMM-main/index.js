@@ -197,21 +197,28 @@ if (loginForm) {
                }
 
                // Caso éxito (200) — sólo aquí guardamos y redirigimos
-               if (res.ok) {
-                   try {
-                       localStorage.setItem('recoverIdentifier', id);
-                   } catch (storageErr) {
-                       console.warn('No se pudo escribir en localStorage:', storageErr);
-                   }
-                   if (recoverMessage) {
-                       recoverMessage.style.color = 'green';
-                       recoverMessage.textContent = (data && (data.message || data.msg)) || 'Revisa tu correo para un enlace de restablecimiento.';
-                   }
-                   setTimeout(() => {
-                       window.location.href = 'reset-password.html';
-                   }, 900);
-                   return;
-               }
+                // Caso éxito (200) — NO redirigir; limpiar campo y cerrar modal (o ir a login si quieres)
+                if (res.ok) {
+                    // 1) Mensaje de éxito
+                    if (recoverMessage) {
+                        recoverMessage.style.color = 'green';
+                        recoverMessage.textContent = (data && (data.message || data.msg)) || 'Revisa tu correo para un enlace de restablecimiento.';
+                    }
+                    // 2) Limpiar el input
+                    if (recoverIdentifier) recoverIdentifier.value = '';
+
+                    // 3) (Opcional) cerrar el modal
+                    if (forgotModal) {
+                        forgotModal.classList.add('hidden');
+                        forgotModal.style.display = 'none';
+                    }
+
+                    // 4) (Opcional) mandar a iniciar sesión en vez de cerrar modal
+                    // window.location.href = 'index.html';
+
+                    return;
+                }
+
 
                // Otros errores
                if (recoverMessage) {
