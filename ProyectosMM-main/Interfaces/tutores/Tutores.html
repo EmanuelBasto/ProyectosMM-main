@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gestión - Tutor</title>
+    <title>Tutorías - Tutor</title>
+    <link rel="icon" type="image/png" href="/ProyectosMM-main-main/ProyectosMM-main/Interfaces/burguer.png">
     <link rel="stylesheet" href="tutores.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -12,75 +13,72 @@
         <!-- Header -->
         <header class="header">
             <div class="header-content">
+                <div class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </div>
                 <div class="logo">
                     <i class="fas fa-chalkboard-teacher"></i>
-                    <h1> Tutor</h1>
+                    <h1>Tutor</h1>
                 </div>
-                <div class="header-actions">
-                    <div class="notification-bell">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-count">2</span>
+                <div class="user-info">
+                    <span class="user-name" id="tutorName"></span>
+                    <div class="user-avatar" onclick="showUserMenu()">
+                        <span class="avatar-initials" id="tutorInitials"></span>
                     </div>
-                    <div class="user-info">
-                        <span class="user-name"></span>
-                        <div class="user-avatar">
-                            <i class="fas fa-user-tie"></i>
-                        </div>
+                    <div class="user-menu" id="userMenu" style="display: none;">
+                        <a href="#" onclick="showProfile()">
+                            <i class="fas fa-user"></i> Mi Perfil
+                        </a>
+                        <hr>
+                        <a href="#" onclick="logout()" class="logout-link">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                        </a>
                     </div>
                 </div>
             </div>
         </header>
 
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileMenu()"></div>
+
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <nav class="nav-menu">
                 <ul>
-                    <li class="nav-item active">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item active" data-section="inicio">
+                        <a href="#" class="nav-link" onclick="loadSection('inicio')">
                             <i class="fas fa-home"></i>
                             <span>Inicio</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item" data-section="horarios">
+                        <a href="#" class="nav-link" onclick="loadSection('horarios')">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Gestión de Horarios</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-section="sesiones">
+                        <a href="#" class="nav-link" onclick="loadSection('sesiones')">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>Sesiones</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-section="estudiantes">
+                        <a href="#" class="nav-link" onclick="loadSection('estudiantes')">
                             <i class="fas fa-graduation-cap"></i>
                             <span>Mis Estudiantes</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-book"></i>
-                            <span>Mis Cursos</span>
+                    <li class="nav-item" data-section="valoraciones">
+                        <a href="#" class="nav-link" onclick="loadSection('valoraciones')">
+                            <i class="fas fa-star"></i>
+                            <span>Valoraciones</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>Horarios</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-tasks"></i>
-                            <span>Tareas</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-chart-line"></i>
-                            <span>Progreso</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-comments"></i>
-                            <span>Mensajes</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-cog"></i>
-                            <span>Configuración</span>
+                    <li class="nav-item" data-section="notificaciones">
+                        <a href="#" class="nav-link" onclick="loadSection('notificaciones')">
+                            <i class="fas fa-bell"></i>
+                            <span>Notificaciones</span>
                         </a>
                     </li>
                 </ul>
@@ -88,496 +86,246 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="main-content">
-            <div class="content-header">
-                <h2>Bienvenida, Tutor</h2>
-                <p>Gestiona tus estudiantes y sesiones de tutoría</p>
-            </div>
-
-            <!-- Dashboard Cards -->
-            <div class="dashboard-cards">
-                <div class="card">
-                    <div class="card-icon">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <div class="card-content">
-                        
-                        <p>Estudiantes Asignados</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-icon">
-                        <i class="fas fa-book-open"></i>
-                    </div>
-                    <div class="card-content">
-                        
-                        <p>Cursos Activos</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-icon">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                    <div class="card-content">
-                        
-                        <p>Sesiones Hoy</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-icon">
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <div class="card-content">
-                        
-                        <p>Calificación Promedio</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Main Dashboard Content -->
-            <div class="dashboard-content">
-                <!-- Schedule Panel -->
-                <div class="schedule-panel">
-                    <div class="panel-header">
-                        <h3><i class="fas fa-calendar-alt"></i> Próximas Sesiones</h3>
-                        <button class="btn btn-primary" onclick="openScheduleModal()">
-                            <i class="fas fa-plus"></i> Nueva Disponibilidad
-                        </button>
-                    </div>
-                    <div class="schedule-list">
-                        <div class="schedule-item">
-                            <div class="schedule-time">
-                                <span class="time">09:00</span>
-                                <span class="duration">45 min</span>
-                            </div>
-                            <div class="schedule-info">
-                                <h4>Matemáticas Avanzadas</h4>
-                                <p>Juan Pérez - Ingeniería</p>
-                                <span class="schedule-type virtual">Virtual</span>
-                            </div>
-                            <div class="schedule-actions">
-                                <button class="btn btn-primary">Iniciar</button>
-                                <button class="btn btn-outline">Detalles</button>
-                            </div>
-                        </div>
-                        <div class="schedule-item">
-                            <div class="schedule-time">
-                                <span class="time">11:00</span>
-                                <span class="duration">60 min</span>
-                            </div>
-                            <div class="schedule-info">
-                                <h4>Física Cuántica</h4>
-                                <p>María García - Física</p>
-                                <span class="schedule-type presencial">Presencial</span>
-                            </div>
-                            <div class="schedule-actions">
-                                <button class="btn btn-primary">Iniciar</button>
-                                <button class="btn btn-outline">Detalles</button>
-                            </div>
-                        </div>
-                        <div class="schedule-item">
-                            <div class="schedule-time">
-                                <span class="time">14:00</span>
-                                <span class="duration">45 min</span>
-                            </div>
-                            <div class="schedule-info">
-                                <h4>Programación</h4>
-                                <p>Carlos López - Sistemas</p>
-                                <span class="schedule-type virtual">Virtual</span>
-                            </div>
-                            <div class="schedule-actions">
-                                <button class="btn btn-primary">Iniciar</button>
-                                <button class="btn btn-outline">Detalles</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Students Panel -->
-                <div class="students-panel">
-                    <div class="panel-header">
-                        <h3><i class="fas fa-graduation-cap"></i> Mis Estudiantes</h3>
-                        <button class="btn btn-outline" onclick="showAllStudents()">Ver Todos</button>
-                    </div>
-                    <div class="students-list">
-                        <div class="student-item">
-                            <div class="student-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="student-info">
-                                <h4>Juan Pérez</h4>
-                                <p>Ingeniería en Sistemas</p>
-                                <div class="student-progress">
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: 75%"></div>
-                                    </div>
-                                    <span class="progress-text">75%</span>
-                                </div>
-                            </div>
-                            <div class="student-actions">
-                                <button class="btn-icon" title="Mensaje" onclick="openMessageDialog('Juan Pérez')">
-                                    <i class="fas fa-comment"></i>
-                                </button>
-                                <button class="btn-icon" title="Ver Perfil" onclick="showStudentProfile('Juan Pérez')">
-                                    <i class="fas fa-user"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="student-item">
-                            <div class="student-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="student-info">
-                                <h4>María García</h4>
-                                <p>Física</p>
-                                <div class="student-progress">
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: 90%"></div>
-                                    </div>
-                                    <span class="progress-text">90%</span>
-                                </div>
-                            </div>
-                            <div class="student-actions">
-                                <button class="btn-icon" title="Mensaje" onclick="openMessageDialog('María García')">
-                                    <i class="fas fa-comment"></i>
-                                </button>
-                                <button class="btn-icon" title="Ver Perfil" onclick="showStudentProfile('María García')">
-                                    <i class="fas fa-user"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="student-item">
-                            <div class="student-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="student-info">
-                                <h4>Carlos López</h4>
-                                <p>Ingeniería en Sistemas</p>
-                                <div class="student-progress">
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: 60%"></div>
-                                    </div>
-                                    <span class="progress-text">60%</span>
-                                </div>
-                            </div>
-                            <div class="student-actions">
-                                <button class="btn-icon" title="Mensaje" onclick="openMessageDialog('Carlos López')">
-                                    <i class="fas fa-comment"></i>
-                                </button>
-                                <button class="btn-icon" title="Ver Perfil" onclick="showStudentProfile('Carlos López')">
-                                    <i class="fas fa-user"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tasks and Messages -->
-            <div class="tasks-messages-section">
-                <!-- Tasks Panel -->
-                <div class="tasks-panel">
-                    <div class="panel-header">
-                        <h3><i class="fas fa-tasks"></i> Tareas Pendientes</h3>
-                        <button class="btn btn-outline" onclick="showAllTasks()">Ver Todas</button>
-                    </div>
-                    <div class="tasks-list">
-                        <div class="task-item">
-                            <div class="task-icon">
-                                <i class="fas fa-file-alt"></i>
-                            </div>
-                            <div class="task-content">
-                                <h4>Revisar Tarea de Matemáticas</h4>
-                                <p>Juan Pérez - Ejercicios de Cálculo</p>
-                                <span class="task-due">Vence: Hoy 18:00</span>
-                            </div>
-                            <div class="task-actions">
-                                <button class="btn btn-primary">Revisar</button>
-                            </div>
-                        </div>
-                        <div class="task-item">
-                            <div class="task-icon">
-                                <i class="fas fa-chalkboard-teacher"></i>
-                            </div>
-                            <div class="task-content">
-                                <h4>Preparar Sesión de Física</h4>
-                                <p>María García - Mecánica Cuántica</p>
-                                <span class="task-due">Mañana 11:00</span>
-                            </div>
-                            <div class="task-actions">
-                                <button class="btn btn-primary">Preparar</button>
-                            </div>
-                        </div>
-                        <div class="task-item">
-                            <div class="task-icon">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <div class="task-content">
-                                <h4>Evaluar Progreso</h4>
-                                <p>Carlos López - Programación</p>
-                                <span class="task-due">Esta semana</span>
-                            </div>
-                            <div class="task-actions">
-                                <button class="btn btn-primary">Evaluar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Messages Panel -->
-                <div class="messages-panel">
-                    <div class="panel-header">
-                        <h3><i class="fas fa-comments"></i> Mensajes Recientes</h3>
-                        <button class="btn btn-outline" onclick="showAllMessages()">Ver Todos</button>
-                    </div>
-                    <div class="messages-list">
-                        <div class="message-item" onclick="openMessageDialog('Juan Pérez')">
-                            <div class="message-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="message-content">
-                                <h4>Juan Pérez</h4>
-                                <p>¿Podríamos reprogramar la sesión de mañana?</p>
-                                <span class="message-time">Hace 5 min</span>
-                            </div>
-                            <div class="message-status">
-                                <i class="fas fa-circle"></i>
-                            </div>
-                        </div>
-                        <div class="message-item" onclick="openMessageDialog('María García')">
-                            <div class="message-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="message-content">
-                                <h4>María García</h4>
-                                <p>Gracias por la sesión de hoy, fue muy útil</p>
-                                <span class="message-time">Hace 1 hora</span>
-                            </div>
-                            <div class="message-status">
-                                <i class="fas fa-circle"></i>
-                            </div>
-                        </div>
-                        <div class="message-item" onclick="openMessageDialog('Carlos López')">
-                            <div class="message-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="message-content">
-                                <h4>Carlos López</h4>
-                                <p>¿Tienes material adicional sobre algoritmos?</p>
-                                <span class="message-time">Hace 2 horas</span>
-                            </div>
-                            <div class="message-status">
-                                <i class="fas fa-circle"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Availability Management Section -->
-            <div class="availability-section" id="availabilitySection" style="display: none;">
-                <div class="panel-header">
-                    <h3><i class="fas fa-calendar-plus"></i> Gestión de Disponibilidades</h3>
-                    <button class="btn btn-secondary" onclick="closeAvailabilitySection()">Cerrar</button>
-                </div>
-                <div class="availability-content">
-                    <div class="availability-form">
-                        <h4>Agregar Nueva Disponibilidad</h4>
-                        <form id="availabilityForm">
-                            <div class="form-group">
-                                <label>Día de la Semana</label>
-                                <select name="day" required>
-                                    <option value="">Seleccionar día</option>
-                                    <option value="lunes">Lunes</option>
-                                    <option value="martes">Martes</option>
-                                    <option value="miercoles">Miércoles</option>
-                                    <option value="jueves">Jueves</option>
-                                    <option value="viernes">Viernes</option>
-                                    <option value="sabado">Sábado</option>
-                                    <option value="domingo">Domingo</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Hora de Inicio</label>
-                                <input type="time" name="startTime" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Hora de Fin</label>
-                                <input type="time" name="endTime" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Modalidad</label>
-                                <select name="modality" required>
-                                    <option value="">Seleccionar modalidad</option>
-                                    <option value="presencial">Presencial</option>
-                                    <option value="virtual">Virtual</option>
-                                    <option value="hibrida">Híbrida</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Ubicación/Enlace</label>
-                                <input type="text" name="location" placeholder="Aula 201 o enlace de Zoom">
-                            </div>
-                            <div class="form-group">
-                                <label>
-                                    <input type="checkbox" name="recurrent"> Disponibilidad Recurrente
-                                </label>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Agregar Disponibilidad</button>
-                        </form>
-                    </div>
-                    <div class="current-availability">
-                        <h4>Disponibilidades Actuales</h4>
-                        <div class="availability-list">
-                            <div class="availability-item">
-                                <div class="availability-info">
-                                    <span class="day">Lunes</span>
-                                    <span class="time">09:00 - 17:00</span>
-                                    <span class="modality virtual">Virtual</span>
-                                </div>
-                                <div class="availability-actions">
-                                    <button class="btn-icon" onclick="editAvailability(1)">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn-icon" onclick="deleteAvailability(1)">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="availability-item">
-                                <div class="availability-info">
-                                    <span class="day">Miércoles</span>
-                                    <span class="time">10:00 - 16:00</span>
-                                    <span class="modality presencial">Presencial</span>
-                                </div>
-                                <div class="availability-actions">
-                                    <button class="btn-icon" onclick="editAvailability(2)">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn-icon" onclick="deleteAvailability(2)">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Session Management Section -->
-            <div class="session-management-section" id="sessionManagementSection" style="display: none;">
-                <div class="panel-header">
-                    <h3><i class="fas fa-calendar-check"></i> Gestión de Sesiones</h3>
-                    <button class="btn btn-secondary" onclick="closeSessionManagementSection()">Cerrar</button>
-                </div>
-                <div class="session-tabs">
-                    <button class="tab-btn active" onclick="showSessionTab('pending')">Pendientes</button>
-                    <button class="tab-btn" onclick="showSessionTab('confirmed')">Confirmadas</button>
-                    <button class="tab-btn" onclick="showSessionTab('completed')">Completadas</button>
-                </div>
-                <div class="session-content">
-                    <div class="session-tab-content" id="pendingSessions">
-                        <div class="session-item">
-                            <div class="session-info">
-                                <h4>Matemáticas Avanzadas</h4>
-                                <p><strong>Estudiante:</strong> Ana Martínez</p>
-                                <p><strong>Fecha:</strong> 15 de Diciembre, 2024</p>
-                                <p><strong>Hora:</strong> 14:00 - 15:00</p>
-                                <p><strong>Modalidad:</strong> Virtual</p>
-                                <p><strong>Objetivo:</strong> Repaso de cálculo diferencial</p>
-                            </div>
-                            <div class="session-actions">
-                                <button class="btn btn-primary" onclick="acceptSession(1)">Aceptar</button>
-                                <button class="btn btn-outline" onclick="proposeNewTime(1)">Proponer Nuevo Horario</button>
-                                <button class="btn btn-secondary" onclick="rejectSession(1)">Rechazar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Ratings and Feedback Section -->
-            <div class="ratings-section" id="ratingsSection" style="display: none;">
-                <div class="panel-header">
-                    <h3><i class="fas fa-star"></i> Valoraciones y Retroalimentación</h3>
-                    <button class="btn btn-secondary" onclick="closeRatingsSection()">Cerrar</button>
-                </div>
-                <div class="ratings-content">
-                    <div class="ratings-summary">
-                        <div class="rating-card">
-                            <h4>Calificación Promedio</h4>
-                            <div class="rating-display">
-                                <span class="rating-number">4.8</span>
-                                <div class="stars">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="rating-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">5 estrellas</span>
-                                <div class="stat-bar">
-                                    <div class="stat-fill" style="width: 80%"></div>
-                                </div>
-                                <span class="stat-count">24</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">4 estrellas</span>
-                                <div class="stat-bar">
-                                    <div class="stat-fill" style="width: 15%"></div>
-                                </div>
-                                <span class="stat-count">5</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">3 estrellas</span>
-                                <div class="stat-bar">
-                                    <div class="stat-fill" style="width: 3%"></div>
-                                </div>
-                                <span class="stat-count">1</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="recent-ratings">
-                        <h4>Valoraciones Recientes</h4>
-                        <div class="rating-item">
-                            <div class="rating-header">
-                                <span class="student-name">Juan Pérez</span>
-                                <div class="rating-stars">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <span class="rating-date">Hace 2 días</span>
-                            </div>
-                            <p class="rating-comment">Excelente tutoría, muy clara la explicación y muy paciente.</p>
-                        </div>
-                        <div class="rating-item">
-                            <div class="rating-header">
-                                <span class="student-name">María García</span>
-                                <div class="rating-stars">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <span class="rating-date">Hace 1 semana</span>
-                            </div>
-                            <p class="rating-comment">Muy buen tutor, me ayudó mucho con los conceptos difíciles.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
+        <main class="main-content" id="mainContent">
+            <!-- Contenido dinámico se carga aquí -->
         </main>
     </div>
 
+    <!-- Templates para las secciones -->
+    <template id="inicioTemplate">
+        <div class="content-header">
+            <h2>Bienvenido, <span id="tutorWelcomeName">""</span></h2>
+            <p>Gestiona tus sesiones de tutoría y mantén contacto con tus estudiantes</p>
+        </div>
+
+        <!-- Dashboard Cards -->
+        <div class="dashboard-cards">
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="card-content">
+                    <h3 id="pendingRequests"></h3>
+                    <p>Solicitudes Pendientes</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="card-content">
+                    <h3 id="upcomingSessions"></h3>
+                    <p>Sesiones Programadas</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="card-content">
+                    <h3 id="averageRating"></h3>
+                    <p>Calificación Promedio</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="card-content">
+                    <h3 id="totalStudents"></h3>
+                    <p>Estudiantes Activos</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Solicitudes Pendientes -->
+        <div class="pending-requests">
+            <div class="requests-panel">
+                <div class="panel-header">
+                    <h3><i class="fas fa-clock"></i> Solicitudes Pendientes</h3>
+                    <button class="btn btn-primary" onclick="loadSection('sesiones')">
+                        <i class="fas fa-eye"></i> Ver Todas
+                    </button>
+                </div>
+                <div class="requests-list">
+                    <!-- Las solicitudes pendientes se cargarán dinámicamente desde el backend -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Próximas Sesiones -->
+        <div class="upcoming-sessions">
+            <div class="sessions-panel">
+                <div class="panel-header">
+                    <h3><i class="fas fa-calendar-alt"></i> Próximas Sesiones</h3>
+                    <button class="btn btn-outline" onclick="loadSection('sesiones')">Ver Todas</button>
+                </div>
+                <div class="sessions-list">
+                    <!-- Las próximas sesiones se cargarán dinámicamente desde el backend -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Actividad Reciente -->
+        <div class="recent-activity">
+            <div class="activity-panel">
+                <div class="panel-header">
+                    <h3><i class="fas fa-clock"></i> Actividad Reciente</h3>
+                    <button class="btn btn-outline" onclick="showAllActivity()">Ver Todo</button>
+                </div>
+                <div class="activity-list">
+                    <!-- Las actividades recientes se cargarán dinámicamente desde el backend -->
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Modal de Gestión de Horarios Simplificado -->
+    <div class="schedule-modal" id="scheduleModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-calendar-plus"></i> Configurar Disponibilidad</h3>
+                <span class="close" onclick="closeScheduleModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="simpleScheduleForm">
+                    <div class="form-group">
+                        <label for="scheduleDay">Día de la Semana *</label>
+                        <select id="scheduleDay" required>
+                            <option value="">Seleccionar día</option>
+                            <option value="monday">Lunes</option>
+                            <option value="tuesday">Martes</option>
+                            <option value="wednesday">Miércoles</option>
+                            <option value="thursday">Jueves</option>
+                            <option value="friday">Viernes</option>
+                            <option value="saturday">Sábado</option>
+                            <option value="sunday">Domingo</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="scheduleStart">Hora de Inicio *</label>
+                            <input type="time" id="scheduleStart" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="scheduleEnd">Hora de Fin *</label>
+                            <input type="time" id="scheduleEnd" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="scheduleModality">Modalidad *</label>
+                        <select id="scheduleModality" required>
+                            <option value="">Seleccionar modalidad</option>
+                            <option value="presencial">Presencial</option>
+                            <option value="virtual">Virtual</option>
+                            <option value="both">Ambas</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="scheduleDuration">Duración de Sesión</label>
+                        <select id="scheduleDuration">
+                            <option value="30">30 minutos</option>
+                            <option value="45" selected>45 minutos</option>
+                            <option value="60">60 minutos</option>
+                            <option value="90">90 minutos</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeScheduleModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveSimpleSchedule()">Guardar Disponibilidad</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Asistencia -->
+    <div class="attendance-modal" id="attendanceModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-check"></i> Registrar Asistencia</h3>
+                <span class="close" onclick="closeAttendanceModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="attendance-form">
+                    <div class="session-info">
+                        <h4 id="attendanceSessionTitle">""</h4>
+                        <p id="attendanceStudentName">""</p>
+                        <p id="attendanceSessionTime">""</p>
+                    </div>
+                    
+                    <div class="attendance-options">
+                        <div class="form-group">
+                            <label>Estado de Asistencia *</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="attendance" value="attended" checked>
+                                    <span class="radio-label">
+                                        <i class="fas fa-check-circle"></i>
+                                        Asistió
+                                    </span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="attendance" value="no-show">
+                                    <span class="radio-label">
+                                        <i class="fas fa-times-circle"></i>
+                                        No Asistió
+                                    </span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="attendance" value="late">
+                                    <span class="radio-label">
+                                        <i class="fas fa-clock"></i>
+                                        Llegó Tarde
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="attendanceNotes">Notas de la Sesión</label>
+                            <textarea id="attendanceNotes" rows="4" placeholder="Describe brevemente cómo fue la sesión, temas tratados, progreso del estudiante..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="nextSession">Próxima Sesión Sugerida</label>
+                            <input type="date" id="nextSession">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAttendanceModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveAttendance()">Guardar Asistencia</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Perfil -->
+    <div class="profile-modal" id="profileModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user"></i> Mi Perfil</h3>
+                <span class="close" onclick="closeProfileModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="profile-content">
+                    <!-- Contenido del perfil se cargará desde el backend -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeProfileModal()">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/Interfaces/backend-config.js"></script>
+    <script src="/Interfaces/integration-connections.js"></script>
     <script src="tutores.js"></script>
 </body>
 </html>

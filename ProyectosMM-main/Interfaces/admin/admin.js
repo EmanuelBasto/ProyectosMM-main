@@ -901,3 +901,4 @@ window.AdminInterface = {
     showNotifications,
     loadDashboardData
 };
+

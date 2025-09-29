@@ -1,58 +1,106 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Usa el API_BASE global si existe, si no usa localhost:4000
   const API_BASE = window.API_BASE || 'http://localhost:4000';
 
   const params = new URLSearchParams(window.location.search);
   const token = params.get('token');
   const tokenField = document.getElementById('tokenField');
   const msg = document.getElementById('msg');
+  const form = document.getElementById('resetForm');
+  const submitBtn = form?.querySelector('button[type="submit"]') || form?.querySelector('button');
 
-  if (!token) {
-    msg.textContent = 'Token no proporcionado. Revisa el enlace del correo.';
-    return;
+  if (!msg) {
+    console.error('[reset] No existe <div id="msg"> en el HTML.');
   }
 
+  if (!token) {
+    if (msg) { msg.style.color = 'crimson'; msg.textContent = 'Token no proporcionado. Revisa el enlace del correo.'; }
+    console.warn('[reset] No token param in URL');
+    return;
+  }
   if (tokenField) tokenField.value = token;
 
-  document.getElementById('resetForm').addEventListener('submit', async (e) => {
+  // ---- Validación previa del token ----
+  (async () => {
+    try {
+      const url = `${API_BASE}/api/auth/validate-reset-token?token=${encodeURIComponent(token)}`;
+      console.log('[reset] Validating token:', url);
+      const res = await fetch(url, { method: 'GET' });
+
+      let data = null;
+      const ct = (res.headers.get('content-type') || '').toLowerCase();
+      if (ct.includes('application/json')) data = await res.json();
+      else {
+        const raw = await res.text();
+        try { data = JSON.parse(raw); } catch { data = { raw }; }
+      }
+
+      console.log('[reset] validate response', res.status, data);
+
+      if (!res.ok || !data?.ok) {
+        if (msg) { msg.style.color = 'crimson'; msg.textContent = data?.message || 'Token inválido o expirado.'; }
+        if (submitBtn) submitBtn.disabled = true;
+      }
+    } catch (e) {
+      console.error('[reset] Error validating token (frontend pre-check):', e);
+      // No bloqueamos aquí; el submit vuelve a validar en backend
+    }
+  })();
+
+  // ---- Submit para cambiar contraseña ----
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const newPassword = document.getElementById('newPassword').value.trim();
-    const confirm = document.getElementById('confirmPassword').value.trim();
+    const newPassword = document.getElementById('newPassword')?.value?.trim() || '';
+    const confirm = document.getElementById('confirmPassword')?.value?.trim() || '';
+
+    if (!newPassword || !confirm) {
+      if (msg) { msg.style.color = 'crimson'; msg.textContent = 'Completa ambos campos.'; }
+      return;
+    }
     if (newPassword !== confirm) {
-      msg.textContent = 'Contraseñas no coinciden';
+      if (msg) { msg.style.color = 'crimson'; msg.textContent = 'Contraseñas no coinciden'; }
       return;
     }
 
     try {
-      const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
+      const url = `${API_BASE}/api/auth/reset-password`;
+      console.log('[reset] POST', url);
+
+      const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, password: newPassword })
       });
 
       let data = null;
-      try { data = await res.json(); } catch {}
+      const ct = (res.headers.get('content-type') || '').toLowerCase();
+      if (ct.includes('application/json')) data = await res.json();
+      else {
+        const raw = await res.text();
+        try { data = JSON.parse(raw); } catch { data = { raw }; }
+      }
+
+      console.log('[reset] reset-password response', res.status, data);
 
       if (!res.ok) {
-        msg.textContent = data?.message || `Error ${res.status}`;
+        if (msg) { msg.style.color = 'crimson'; msg.textContent = data?.message || `Error ${res.status}`; }
       } else {
-        msg.style.color = 'green';
-        msg.textContent = 'Contraseña actualizada correctamente.';
-
-        // Opcional: redirigir al login después de 2s
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 2000);
+        if (msg) { msg.style.color = 'green'; msg.textContent = 'Contraseña actualizada correctamente.'; }
+        setTimeout(() => { window.location.href = 'index.html'; }, 2000);
       }
     } catch (err) {
-      console.error(err);
-      msg.textContent = 'Error de conexión';
+      console.error('[reset] Network/Fetch error:', err);
+      if (msg) { msg.style.color = 'crimson'; msg.textContent = 'Error de conexión'; }
     }
   });
 
-// Al final del DOMContentLoaded de reset.js (y repite en registrar.js si quieres)
-document.querySelectorAll('.toggle-eye').forEach(btn => {
-  btn.addEventListener('click', () => {
+  // ---- Ojitos mostrar/ocultar ----
+  document.addEventListener('mousedown', (ev) => {
+    const btn = ev.target.closest('.toggle-eye');
+    if (btn) ev.preventDefault(); // mantener foco en input
+  });
+  document.addEventListener('click', (ev) => {
+    const btn = ev.target.closest('.toggle-eye');
+    if (!btn) return;
     const id = btn.getAttribute('data-target');
     const input = document.getElementById(id);
     if (!input) return;
@@ -63,7 +111,6 @@ document.querySelectorAll('.toggle-eye').forEach(btn => {
   });
 });
 
-});
 
 
 

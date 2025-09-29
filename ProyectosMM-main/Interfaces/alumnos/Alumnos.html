@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Los okes</title>
+    <title>Tutorías - Estudiante</title>
+    <link rel="icon" type="image/png" href="/ProyectosMM-main-main/ProyectosMM-main/Interfaces/burguer.png">
     <link rel="stylesheet" href="alumnos.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -12,690 +13,471 @@
         <!-- Header -->
         <header class="header">
             <div class="header-content">
+                <div class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </div>
                 <div class="logo">
                     <i class="fas fa-graduation-cap"></i>
-                    <h1>Tutorias</h1>
+                    <h1>Tutorías</h1>
                 </div>
                 <div class="user-info">
-                    <span class="user-name">Jair Serralta(Cambiar en la base)</span>
-                    <div class="user-avatar">
-                        <span class="avatar-initials">JS</span>
+                    <span class="user-name"></span>
+                    <div class="user-avatar" onclick="showUserMenu()">
+                        <span class="avatar-initials" id="studentInitials"></span>
+                    </div>
+                    <div class="user-menu" id="userMenu" style="display: none;">
+                        <a href="#" onclick="showProfile()">
+                            <i class="fas fa-user"></i> Mi Perfil
+                        </a>
+                        <hr>
+                        <a href="/index.html" onclick="logout()" class="logout-link">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                        </a>
                     </div>
                 </div>
             </div>
         </header>
 
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileMenu()"></div>
+
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <nav class="nav-menu">
                 <ul>
-                    <li class="nav-item active">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item active" data-section="inicio">
+                        <a href="#" class="nav-link" onclick="loadSection('inicio')">
                             <i class="fas fa-home"></i>
                             <span>Inicio</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-book"></i>
-                            <span>Mis Cursos</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-comments"></i>
-                            <span>Mensajes</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-cog"></i>
-                            <span>Configuración</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item" data-section="tutores">
+                        <a href="#" class="nav-link" onclick="loadSection('tutores')">
                             <i class="fas fa-chalkboard-teacher"></i>
-                            <span>Mis Tutores</span>
+                            <span>Buscar Tutores</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item" data-section="horarios">
+                        <a href="#" class="nav-link" onclick="loadSection('horarios')">
                             <i class="fas fa-calendar-alt"></i>
                             <span>Horarios</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-chart-line"></i>
-                            <span>Progreso</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item" data-section="valoraciones">
+                        <a href="#" class="nav-link" onclick="loadSection('valoraciones')">
                             <i class="fas fa-star"></i>
                             <span>Valoraciones</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item" data-section="recordatorios">
+                        <a href="#" class="nav-link" onclick="loadSection('recordatorios')">
                             <i class="fas fa-bell"></i>
                             <span>Recordatorios</span>
                         </a>
                     </li>
-                    
                 </ul>
             </nav>
         </aside>
 
         <!-- Main Content -->
-        <main class="main-content">
+        <main class="main-content" id="mainContent">
+            <!-- Contenido dinámico se carga aquí -->
+        </main>
+    </div>
+
+    <!-- Templates para las secciones -->
+    <template id="inicioTemplate">
             <div class="content-header">
-                <h2>Bienvenido, Jair</h2>
-                <p>Gestiona tu aprendizaje y mantén contacto con tus tutores</p>
+            <h2>Bienvenido <span id="studentWelcomeName"></span></h2>
+            <p>Gestiona tu aprendizaje y mantén contacto con tus tutores</p>
             </div>
 
-            <!-- Dashboard Cards -->
-            <div class="dashboard-cards">
-                <div class="card">
-                    <div class="card-icon">
-                        <i class="fas fa-book-open"></i>
-                    </div>
-                    <div class="card-content">
-                        
-                        <p>Cursos Activos</p>
-                    </div>
+        <!-- Dashboard Cards -->
+        <div class="dashboard-cards">
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-chalkboard-teacher"></i>
                 </div>
-                <div class="card">
-                    <div class="card-icon">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                    </div>
-                    <div class="card-content">
-                        
-                        <p>Tutores Asignados</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-icon">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                    <div class="card-content">
-                        
-                        <p>Sesiones Programadas</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-icon">
-                        <i class="fas fa-trophy"></i>
-                    </div>
-                    <div class="card-content">
-                        
-                        <p>Progreso General</p>
-                    </div>
+                <div class="card-content">
+               
+                    <p>Tutores Disponibles</p>
                 </div>
             </div>
-
-            <!-- Cursos Activos Section -->
-            <div class="cursos-activos-section">
-                <div class="cursos-panel">
-                    <div class="panel-header">
-                        <h3>Cursos Activos</h3>
-                    </div>
-                    <div class="cursos-table-container">
-                        <table class="cursos-table">
-                            <thead>
-                                <tr>
-                                    <th>Cursos</th>
-                                    <th>Status</th>
-                                    <th>Próxima Sesión</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="curso-name">Matemáticas Discretas</td>
-                                    <td class="curso-status">
-                                        <span class="status-badge active">Activo</span>
-                                    </td>
-                                    <td class="curso-fecha">30/09/2025</td>
-                                    <td class="curso-acciones">
-                                        <button class="btn btn-success" onclick="verDetallesCurso(1)">Ver Detalles</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="curso-name">Programación Avanzada</td>
-                                    <td class="curso-status">
-                                        <span class="status-badge active">Activo</span>
-                                    </td>
-                                    <td class="curso-fecha">02/10/2025</td>
-                                    <td class="curso-acciones">
-                                        <button class="btn btn-success" onclick="verDetallesCurso(2)">Ver Detalles</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="curso-name">Física Cuántica</td>
-                                    <td class="curso-status">
-                                        <span class="status-badge pending">Pendiente</span>
-                                    </td>
-                                    <td class="curso-fecha">05/10/2025</td>
-                                    <td class="curso-acciones">
-                                        <button class="btn btn-success" onclick="verDetallesCurso(3)">Ver Detalles</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="card-content">
+                   
+                    <p>Sesiones Programadas</p>
                 </div>
             </div>
-
-            <!-- Recent Activity -->
-            <div class="recent-activity">
-                <div class="activity-panel">
-                    <div class="panel-header">
-                        <h3><i class="fas fa-clock"></i> Actividad Reciente</h3>
-                        <button class="btn btn-outline" onclick="showAllActivity()">Ver Todo</button>
-                    </div>
-                    <div class="activity-list">
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            <div class="activity-content">
-                                <h4>Sesión Completada</h4>
-                                <p>Matemáticas Avanzadas con Dr. García</p>
-                                <span class="activity-time">Hace 2 horas</span>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-star"></i>
-                            </div>
-                            <div class="activity-content">
-                                <h4>Valoración Enviada</h4>
-                                <p>Calificaste la sesión de Física con 5 estrellas</p>
-                                <span class="activity-time">Hace 3 horas</span>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-calendar-plus"></i>
-                            </div>
-                            <div class="activity-content">
-                                <h4>Sesión Programada</h4>
-                                <p>Programación para mañana a las 14:00</p>
-                                <span class="activity-time">Ayer</span>
-                            </div>
-                        </div>
-                    </div>
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="card-content">
+                    
+                    <p>Promedio Valoraciones</p>
                 </div>
             </div>
-
-            <!-- Upcoming Sessions -->
-            <div class="upcoming-sessions">
-                <div class="sessions-panel">
-                    <div class="panel-header">
-                        <h3><i class="fas fa-calendar-alt"></i> Próximas Sesiones</h3>
-                        <button class="btn btn-primary" onclick="openBookingModal()">
-                            <i class="fas fa-plus"></i> Nueva Tutoría
-                        </button>
-                    </div>
-                    <div class="sessions-list">
-                        <div class="session-item">
-                            <div class="session-time">
-                                <span class="time">14:00</span>
-                                <span class="duration">60 min</span>
-                            </div>
-                            <div class="session-info">
-                                <h4>Programación Avanzada</h4>
-                                <p>Dr. Carlos López - Virtual</p>
-                                <span class="session-date">Mañana, 15 Dic</span>
-                            </div>
-                            <div class="session-actions">
-                                <button class="btn btn-primary" onclick="joinSession(1)">Unirse</button>
-                                <button class="btn btn-outline" onclick="rescheduleSession(1)">Reprogramar</button>
-                                <button class="btn btn-secondary" onclick="cancelSession(1)">Cancelar</button>
-                            </div>
-                        </div>
-                        <div class="session-item">
-                            <div class="session-time">
-                                <span class="time">10:00</span>
-                                <span class="duration">45 min</span>
-                            </div>
-                            <div class="session-info">
-                                <h4>Matemáticas</h4>
-                                <p>Dra. María García - Presencial</p>
-                                <span class="session-date">Viernes, 17 Dic</span>
-                            </div>
-                            <div class="session-actions">
-                                <button class="btn btn-primary" onclick="joinSession(2)">Unirse</button>
-                                <button class="btn btn-outline" onclick="rescheduleSession(2)">Reprogramar</button>
-                                <button class="btn btn-secondary" onclick="cancelSession(2)">Cancelar</button>
-                            </div>
-                        </div>
-                    </div>
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="card-content">
+                    
+                    <p>Horas de Apoyo</p>
                 </div>
             </div>
+        </div>
 
-            <!-- Tutor Search Section -->
-            <div class="tutor-search-section" id="tutorSearchSection" style="display: none;">
+        <!-- Próximas Sesiones -->
+        <div class="upcoming-sessions">
+            <div class="sessions-panel">
                 <div class="panel-header">
-                    <h3><i class="fas fa-search"></i> Buscar Tutores</h3>
-                    <button class="btn btn-secondary" onclick="closeTutorSearchSection()">Cerrar</button>
+                    <h3><i class="fas fa-calendar-alt"></i> Próximas Sesiones</h3>
+                    <button class="btn btn-primary" onclick="loadSection('tutores')">
+                        <i class="fas fa-plus"></i> Nueva Tutoría
+                    </button>
                 </div>
-                <div class="search-filters">
-                    <div class="filter-group">
-                        <label>Materia</label>
-                        <select id="subjectFilter">
-                            <option value="">Todas las materias</option>
-                            <option value="matematicas">Matemáticas</option>
-                            <option value="fisica">Física</option>
-                            <option value="programacion">Programación</option>
-                            <option value="quimica">Química</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Modalidad</label>
-                        <select id="modalityFilter">
-                            <option value="">Todas las modalidades</option>
-                            <option value="presencial">Presencial</option>
-                            <option value="virtual">Virtual</option>
-                            <option value="hibrida">Híbrida</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Fecha</label>
-                        <input type="date" id="dateFilter">
-                    </div>
-                    <div class="filter-group">
-                        <label>Hora</label>
-                        <input type="time" id="timeFilter">
-                    </div>
-                    <button class="btn btn-primary" onclick="searchTutors()">Buscar</button>
-                </div>
-                <div class="tutors-results">
-                    <div class="tutor-card">
-                        <div class="tutor-avatar">
-                            <i class="fas fa-user-tie"></i>
-                        </div>
-                        <div class="tutor-info">
-                            <h4>Dr. Carlos López</h4>
-                            <p>Programación Avanzada</p>
-                            <div class="tutor-rating">
-                                <div class="stars">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <span class="rating-text">4.9 (24 reseñas)</span>
-                            </div>
-                            <div class="tutor-availability">
-                                <span class="availability-badge available">Disponible</span>
-                                <span class="next-slot">Próximo: Mañana 14:00</span>
-                            </div>
-                        </div>
-                        <div class="tutor-actions">
-                            <button class="btn btn-primary" onclick="bookTutor(1)">Reservar</button>
-                            <button class="btn btn-outline" onclick="viewTutorProfile(1)">Ver Perfil</button>
-                        </div>
-                    </div>
-                    <div class="tutor-card">
-                        <div class="tutor-avatar">
-                            <i class="fas fa-user-tie"></i>
-                        </div>
-                        <div class="tutor-info">
-                            <h4>Dra. María García</h4>
-                            <p>Matemáticas y Física</p>
-                            <div class="tutor-rating">
-                                <div class="stars">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <span class="rating-text">4.8 (18 reseñas)</span>
-                            </div>
-                            <div class="tutor-availability">
-                                <span class="availability-badge available">Disponible</span>
-                                <span class="next-slot">Próximo: Viernes 10:00</span>
-                            </div>
-                        </div>
-                        <div class="tutor-actions">
-                            <button class="btn btn-primary" onclick="bookTutor(2)">Reservar</button>
-                            <button class="btn btn-outline" onclick="viewTutorProfile(2)">Ver Perfil</button>
-                        </div>
+                <div class="sessions-list">
+                    <!-- Las próximas sesiones se cargarán dinámicamente desde el backend -->
                     </div>
                 </div>
             </div>
 
-            <!-- Booking Modal Section -->
-            <div class="booking-section" id="bookingSection" style="display: none;">
+        <!-- Actividad Reciente -->
+        <div class="recent-activity">
+            <div class="activity-panel">
                 <div class="panel-header">
-                    <h3><i class="fas fa-calendar-plus"></i> Reservar Tutoría</h3>
-                    <button class="btn btn-secondary" onclick="closeBookingSection()">Cerrar</button>
+                    <h3><i class="fas fa-clock"></i> Actividad Reciente</h3>
+                    <button class="btn btn-outline" onclick="showAllActivity()">Ver Todo</button>
                 </div>
-                <div class="booking-content">
-                    <div class="booking-form">
-                        <form id="bookingForm">
+                <div class="activity-list">
+                    <!-- Las actividades recientes se cargarán dinámicamente desde el backend -->
+                </div>
+            </div>
+        </div>
+    </template>
+
+
+    <template id="tutoresTemplate">
+        <div class="content-header">
+            <h2>Buscar Tutores</h2>
+            <p>Encuentra el tutor perfecto para tus necesidades de aprendizaje</p>
+    </div>
+
+        <div class="search-filters">
+            <div class="filter-group">
+                <label>Área de Apoyo</label>
+                <select id="areaFilter">
+                    <option value="">Todas las áreas</option>
+                    <option value="matematicas">Matemáticas</option>
+                    <option value="ciencias">Ciencias</option>
+                    <option value="lenguaje">Lenguaje</option>
+                    <option value="general">Apoyo General</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Modalidad</label>
+                <select id="modalityFilter">
+                    <option value="">Todas las modalidades</option>
+                    <option value="presencial">Presencial</option>
+                    <option value="virtual">Virtual</option>
+                    <option value="both">Ambas</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Día de la Semana</label>
+                <select id="dayFilter">
+                    <option value="">Cualquier día</option>
+                    <option value="monday">Lunes</option>
+                    <option value="tuesday">Martes</option>
+                    <option value="wednesday">Miércoles</option>
+                    <option value="thursday">Jueves</option>
+                    <option value="friday">Viernes</option>
+                    <option value="saturday">Sábado</option>
+                    <option value="sunday">Domingo</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Hora Preferida</label>
+                <select id="timeFilter">
+                    <option value="">Cualquier hora</option>
+                    <option value="08:00">08:00 AM</option>
+                    <option value="09:00">09:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="13:00">01:00 PM</option>
+                    <option value="14:00">02:00 PM</option>
+                    <option value="15:00">03:00 PM</option>
+                    <option value="16:00">04:00 PM</option>
+                    <option value="17:00">05:00 PM</option>
+                    <option value="18:00">06:00 PM</option>
+                    <option value="19:00">07:00 PM</option>
+                    <option value="20:00">08:00 PM</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Duración</label>
+                <select id="durationFilter">
+                    <option value="">Cualquier duración</option>
+                    <option value="30">30 minutos</option>
+                    <option value="45">45 minutos</option>
+                    <option value="60">60 minutos</option>
+                    <option value="90">90 minutos</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="searchTutors()">
+                <i class="fas fa-search"></i> Buscar Tutores
+            </button>
+        </div>
+
+        <div class="tutors-results">
+            <!-- Los tutores se cargarán dinámicamente desde el backend -->
+        </div>
+
+        <!-- Formulario de solicitud (inicialmente oculto) -->
+        <div class="booking-section" id="bookingSection" style="display: none;">
+            <div class="panel-header">
+                <h3><i class="fas fa-calendar-plus"></i> Solicitar Sesión de Apoyo</h3>
+                <button class="btn btn-secondary" onclick="closeBookingSection()">Cerrar</button>
+            </div>
+            <div class="booking-content">
+                <div class="booking-form">
+                    <form id="bookingForm">
+                        <div class="form-row">
                             <div class="form-group">
                                 <label>Tutor Seleccionado</label>
                                 <input type="text" id="selectedTutor" readonly>
                             </div>
                             <div class="form-group">
-                                <label>Materia</label>
-                                <select name="subject" required>
-                                    <option value="">Seleccionar materia</option>
+                                <label>Área de Apoyo</label>
+                                <select name="area" required>
+                                    <option value="">Seleccionar área</option>
                                     <option value="matematicas">Matemáticas</option>
-                                    <option value="fisica">Física</option>
-                                    <option value="programacion">Programación</option>
-                                    <option value="quimica">Química</option>
+                                    <option value="ciencias">Ciencias</option>
+                                    <option value="lenguaje">Lenguaje</option>
+                                    <option value="general">Apoyo General</option>
                                 </select>
                             </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Objetivo de la Sesión *</label>
+                            <textarea name="objective" rows="3" placeholder="Describe qué quieres lograr en esta sesión de apoyo académico..." required></textarea>
+                        </div>
+                        
+                        <div class="form-row">
                             <div class="form-group">
-                                <label>Objetivo de la Sesión</label>
-                                <textarea name="objective" rows="3" placeholder="Describe qué quieres lograr en esta sesión..."></textarea>
+                                <label>Fecha Preferida *</label>
+                                <input type="date" name="date" required min="">
                             </div>
                             <div class="form-group">
-                                <label>Fecha</label>
-                                <input type="date" name="date" required>
+                                <label>Hora Preferida *</label>
+                                <select name="time" required>
+                                    <option value="">Seleccionar hora</option>
+                                    <option value="08:00">08:00 AM</option>
+                                    <option value="09:00">09:00 AM</option>
+                                    <option value="10:00">10:00 AM</option>
+                                    <option value="11:00">11:00 AM</option>
+                                    <option value="12:00">12:00 PM</option>
+                                    <option value="13:00">01:00 PM</option>
+                                    <option value="14:00">02:00 PM</option>
+                                    <option value="15:00">03:00 PM</option>
+                                    <option value="16:00">04:00 PM</option>
+                                    <option value="17:00">05:00 PM</option>
+                                    <option value="18:00">06:00 PM</option>
+                                    <option value="19:00">07:00 PM</option>
+                                    <option value="20:00">08:00 PM</option>
+                                </select>
                             </div>
+                        </div>
+                        
+                        <div class="form-row">
                             <div class="form-group">
-                                <label>Hora</label>
-                                <input type="time" name="time" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Duración</label>
+                                <label>Duración *</label>
                                 <select name="duration" required>
                                     <option value="">Seleccionar duración</option>
                                     <option value="30">30 minutos</option>
                                     <option value="45">45 minutos</option>
-                                    <option value="60">60 minutos</option>
-                                    <option value="90">90 minutos</option>
+                                    <option value="60">1 hora</option>
+                                    <option value="90">1.5 horas</option>
+                                    <option value="120">2 horas</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Modalidad</label>
-                                <select name="modality" required>
+                                <label>Modalidad *</label>
+                                <select name="modality" required onchange="toggleLocationField(this)">
                                     <option value="">Seleccionar modalidad</option>
                                     <option value="presencial">Presencial</option>
                                     <option value="virtual">Virtual</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label>Ubicación/Enlace</label>
-                                <input type="text" name="location" placeholder="Aula específica o enlace de Zoom">
-                            </div>
-                            <button type="submit" class="btn btn-primary">Reservar Tutoría</button>
-                        </form>
-                    </div>
+                        </div>
+                        
+                        <div class="form-group" id="locationField">
+                            <label id="locationLabel">Ubicación/Enlace *</label>
+                            <input type="text" name="location" placeholder="Aula específica o enlace de Zoom" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Comentarios Adicionales</label>
+                            <textarea name="comments" rows="2" placeholder="Información adicional que el tutor deba conocer..."></textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="closeBookingSection()">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Enviar Solicitud
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
+        </div>
+    </template>
 
-            <!-- Progress Tracking Section -->
-            <div class="progress-section" id="progressSection" style="display: none;">
-                <div class="panel-header">
-                    <h3><i class="fas fa-chart-line"></i> Mi Progreso</h3>
-                    <button class="btn btn-secondary" onclick="closeProgressSection()">Cerrar</button>
-                </div>
-                <div class="progress-content">
-                    <div class="progress-overview">
-                        <div class="progress-card">
-                            <h4>Sesiones Completadas</h4>
-                            <div class="progress-number">24</div>
-                            <div class="progress-trend">
-                                <i class="fas fa-arrow-up"></i>
-                                <span>+3 esta semana</span>
-                            </div>
-                        </div>
-                        <div class="progress-card">
-                            <h4>Promedio de Calificaciones</h4>
-                            <div class="progress-number">4.7</div>
-                            <div class="progress-trend">
-                                <i class="fas fa-arrow-up"></i>
-                                <span>+0.2 este mes</span>
-                            </div>
-                        </div>
-                        <div class="progress-card">
-                            <h4>Horas de Estudio</h4>
-                            <div class="progress-number">48h</div>
-                            <div class="progress-trend">
-                                <i class="fas fa-arrow-up"></i>
-                                <span>+8h esta semana</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="progress-chart">
-                        <h4>Progreso por Materia</h4>
-                        <div class="chart-container">
-                            <div class="chart-item">
-                                <div class="chart-label">Matemáticas</div>
-                                <div class="chart-bar">
-                                    <div class="chart-fill" style="width: 85%"></div>
-                                </div>
-                                <div class="chart-value">85%</div>
-                            </div>
-                            <div class="chart-item">
-                                <div class="chart-label">Física</div>
-                                <div class="chart-bar">
-                                    <div class="chart-fill" style="width: 72%"></div>
-                                </div>
-                                <div class="chart-value">72%</div>
-                            </div>
-                            <div class="chart-item">
-                                <div class="chart-label">Programación</div>
-                                <div class="chart-bar">
-                                    <div class="chart-fill" style="width: 90%"></div>
-                                </div>
-                                <div class="chart-value">90%</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <!-- Modal de Detalles de Sesión -->
+    <div class="session-modal" id="sessionModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="sessionTitle">(Pendiente de Confirmar)</h3>
+                <span class="close" onclick="closeSessionModal()">&times;</span>
             </div>
-
-            <!-- Messages Section -->
-            <div class="messages-section" id="messagesSection" style="display: none;">
-                <div class="panel-header">
-                    <h3><i class="fas fa-comments"></i> Mensajes</h3>
-                    <button class="btn btn-secondary" onclick="closeMessagesSection()">Cerrar</button>
-                </div>
-                <div class="messages-content">
-                    <div class="messages-list">
-                        <div class="message-conversation" onclick="openConversation('Dr. Carlos López')">
-                            <div class="conversation-avatar">
-                                <i class="fas fa-user-tie"></i>
-                            </div>
-                            <div class="conversation-info">
-                                <h4>Dr. Carlos López</h4>
-                                <p>Perfecto, nos vemos mañana a las 14:00</p>
-                                <span class="conversation-time">Hace 1 hora</span>
-                            </div>
-                            <div class="conversation-status">
-                                <i class="fas fa-circle"></i>
-                            </div>
-                        </div>
-                        <div class="message-conversation" onclick="openConversation('Dra. María García')">
-                            <div class="conversation-avatar">
-                                <i class="fas fa-user-tie"></i>
-                            </div>
-                            <div class="conversation-info">
-                                <h4>Dra. María García</h4>
-                                <p>¿Podrías revisar los ejercicios antes de nuestra sesión?</p>
-                                <span class="conversation-time">Hace 3 horas</span>
-                            </div>
-                            <div class="conversation-status">
-                                <i class="fas fa-circle"></i>
+            <div class="modal-body">
+                <div class="session-details">
+                    <div class="detail-item">
+                        <i class="fas fa-user-tie"></i>
+                        <div class="detail-content">
+                            <label>Tutor:</label>
+                            <span id="sessionTutor"></span>
+                            <div class="tutor-rating" id="sessionRating">
+                                <i class="far fa-star"></i>
+                                <i class="far fa-star"></i>
+                                <i class="far fa-star"></i>
+                                <i class="far fa-star"></i>
+                                <i class="far fa-star"></i>
+                                <span>0</span>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Recordatorios Section -->
-            <div class="recordatorios-section" id="recordatoriosSection" style="display: none;">
-                <div class="panel-header">
-                    <h3><i class="fas fa-bell"></i> Recordatorios</h3>
-                    <button class="btn btn-secondary" onclick="closeRecordatoriosSection()">Cerrar</button>
-                </div>
-                <div class="recordatorios-content">
-                    <div class="recordatorios-list">
-                        <div class="recordatorio-item urgent">
-                            <div class="recordatorio-icon">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </div>
-                            <div class="recordatorio-info">
-                                <h4>Sesión en 1 hora</h4>
-                                <p>Matemáticas Discretas con Dr. García - Aula 201</p>
-                                <span class="recordatorio-time">Hace 5 minutos</span>
-                            </div>
-                            <div class="recordatorio-actions">
-                                <button class="btn btn-primary" onclick="irASesion(1)">Ir a Sesión</button>
-                                <button class="btn btn-outline" onclick="marcarComoLeido(1)">Marcar como Leído</button>
-                            </div>
+                    
+                    <div class="detail-item">
+                        <i class="fas fa-calendar"></i>
+                        <div class="detail-content">
+                            <label>Fecha:</label>
+                            <span id="sessionDate"></span>
                         </div>
-                        <div class="recordatorio-item normal">
-                            <div class="recordatorio-icon">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            <div class="recordatorio-info">
-                                <h4>Recordatorio de Sesión</h4>
-                                <p>Programación Avanzada mañana a las 14:00</p>
-                                <span class="recordatorio-time">Hace 2 horas</span>
-                            </div>
-                            <div class="recordatorio-actions">
-                                <button class="btn btn-primary" onclick="verDetallesSesion(2)">Ver Detalles</button>
-                                <button class="btn btn-outline" onclick="marcarComoLeido(2)">Marcar como Leído</button>
-                            </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <i class="fas fa-clock"></i>
+                        <div class="detail-content">
+                            <label>Hora:</label>
+                            <span id="sessionTime"></span>
                         </div>
-                        <div class="recordatorio-item info">
-                            <div class="recordatorio-icon">
-                                <i class="fas fa-star"></i>
-                            </div>
-                            <div class="recordatorio-info">
-                                <h4>Valorar Sesión</h4>
-                                <p>No olvides valorar la sesión de Física Cuántica</p>
-                                <span class="recordatorio-time">Hace 1 día</span>
-                            </div>
-                            <div class="recordatorio-actions">
-                                <button class="btn btn-primary" onclick="valorarSesion(3)">Valorar Ahora</button>
-                                <button class="btn btn-outline" onclick="marcarComoLeido(3)">Marcar como Leído</button>
-                            </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <i class="fas fa-video"></i>
+                        <div class="detail-content">
+                            <label>Modalidad:</label>
+                            <span id="sessionModality"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <i class="fas fa-link"></i>
+                        <div class="detail-content">
+                            <label>Enlace:</label>
+                            <span id="sessionLink"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div class="detail-content">
+                            <label>Ubicación:</label>
+                            <span id="sessionLocation"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <i class="fas fa-hourglass-half"></i>
+                        <div class="detail-content">
+                            <label>Duración:</label>
+                            <span id="sessionDuration"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <i class="fas fa-bullseye"></i>
+                        <div class="detail-content">
+                            <label>Objetivo:</label>
+                            <span id="sessionObjective"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <i class="fas fa-sync-alt"></i>
+                        <div class="detail-content">
+                            <label>Reprogramaciones:</label>
+                            <span id="sessionReschedules"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div class="detail-content">
+                            <label>Política:</label>
+                            <span id="sessionPolicy"></span>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Valoraciones Section -->
-            <div class="valoraciones-section" id="valoracionesSection" style="display: none;">
-                <div class="panel-header">
-                    <h3><i class="fas fa-star"></i> Mis Valoraciones</h3>
-                    <button class="btn btn-secondary" onclick="closeValoracionesSection()">Cerrar</button>
-                </div>
-                <div class="valoraciones-content">
-                    <div class="valoraciones-list">
-                        <div class="valoracion-item">
-                            <div class="valoracion-header">
-                                <div class="tutor-info">
-                                    <div class="tutor-avatar-small">
-                                        <i class="fas fa-user-tie"></i>
-                                    </div>
-                                    <div class="tutor-details">
-                                        <h4>Dr. García</h4>
-                                        <p>Matemáticas Discretas</p>
-                                    </div>
-                                </div>
-                                <div class="valoracion-stars">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <span class="valoracion-fecha">Hace 2 días</span>
-                            </div>
-                            <div class="valoracion-comentario">
-                                <p>"Excelente tutoría, muy clara la explicación y muy paciente con mis dudas."</p>
-                            </div>
-                        </div>
-                        <div class="valoracion-item">
-                            <div class="valoracion-header">
-                                <div class="tutor-info">
-                                    <div class="tutor-avatar-small">
-                                        <i class="fas fa-user-tie"></i>
-                                    </div>
-                                    <div class="tutor-details">
-                                        <h4>Dr. López</h4>
-                                        <p>Programación Avanzada</p>
-                                    </div>
-                                </div>
-                                <div class="valoracion-stars">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="far fa-star"></i>
-                                </div>
-                                <span class="valoracion-fecha">Hace 1 semana</span>
-                            </div>
-                            <div class="valoracion-comentario">
-                                <p>"Muy buen tutor, me ayudó mucho con los algoritmos complejos."</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="nueva-valoracion">
-                        <h4>Valorar Nueva Sesión</h4>
-                        <form id="valoracionForm">
-                            <div class="form-group">
-                                <label>Tutor</label>
-                                <select name="tutor" required>
-                                    <option value="">Seleccionar tutor</option>
-                                    <option value="garcia">Dr. García</option>
-                                    <option value="lopez">Dr. López</option>
-                                    <option value="martinez">Dra. Martínez</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Materia</label>
-                                <select name="materia" required>
-                                    <option value="">Seleccionar materia</option>
-                                    <option value="matematicas">Matemáticas</option>
-                                    <option value="programacion">Programación</option>
-                                    <option value="fisica">Física</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Calificación</label>
-                                <div class="rating-input">
-                                    <input type="radio" name="rating" value="5" id="star5">
-                                    <label for="star5"><i class="fas fa-star"></i></label>
-                                    <input type="radio" name="rating" value="4" id="star4">
-                                    <label for="star4"><i class="fas fa-star"></i></label>
-                                    <input type="radio" name="rating" value="3" id="star3">
-                                    <label for="star3"><i class="fas fa-star"></i></label>
-                                    <input type="radio" name="rating" value="2" id="star2">
-                                    <label for="star2"><i class="fas fa-star"></i></label>
-                                    <input type="radio" name="rating" value="1" id="star1">
-                                    <label for="star1"><i class="fas fa-star"></i></label>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Comentario</label>
-                                <textarea name="comentario" rows="3" placeholder="Escribe tu comentario sobre la sesión..."></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Enviar Valoración</button>
-                        </form>
-                    </div>
-                </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="cancelSessionFromModal()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button class="btn btn-success" onclick="rescheduleSessionFromModal()">
+                    <i class="fas fa-calendar-alt"></i> Reprogramar
+                </button>
+                <button class="btn btn-secondary" onclick="closeSessionModal()">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
             </div>
-            
-
+        </div>
     </div>
 
+    <!-- Modal de Perfil -->
+<div id="profileModal" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width:560px;">
+        <div class="modal-header">
+            <h3><!-- botón del menú usuario -->
+                <a id="menuProfileBtn" href="#" onclick="showProfile()">
+                <i class="fas fa-user"></i> Mi Perfil
+                </a>
+            </h3>
+            <span class="close" onclick="closeProfileModal()">&times;</span>
+        </div>
 
+        <div class="modal-body" id="profileBody">
+        <!-- Aquí se inyecta el contenido -->
+        </div>
 
+        <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeProfileModal()">
+            <i class="fas fa-times"></i> Cerrar
+        </button>
+        </div>
+    </div>
+</div>
 
+    <script src="/Interfaces/backend-config.js"></script>
+    <script src="/Interfaces/integration-connections.js"></script>
     <script src="alumnos.js"></script>
 </body>
 </html>
