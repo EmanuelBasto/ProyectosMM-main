@@ -19,7 +19,8 @@ const BACKEND_CONFIG = {
   BASE_URL: 'http://localhost:4000/api',
 
   // Autenticación
-  AUTH: {
+  // En BACKEND_CONFIG.AUTH
+AUTH: {
   LOGIN: '/auth/login',
   LOGOUT: '/auth/logout',
   REGISTER: '/auth/register',
@@ -27,8 +28,9 @@ const BACKEND_CONFIG = {
   FORGOT_PASSWORD: '/auth/forgot-password',
   RESET_PASSWORD: '/auth/reset-password',
   VERIFY_EMAIL: '/auth/verify-email',
-  PROFILE: '/auth/profile'           // ← NUEVO
+  PROFILE: '/auth/profile' // <-- NUEVO
 },
+
 
 
   // Usuarios (generales)
@@ -137,8 +139,13 @@ const BACKEND_CONFIG = {
 // 2) Utilidades: Token, Headers, Limpieza de sesión
 // ===============================================
 function getAuthToken() {
-  return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+  const t = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+  if (!t) return null;
+  // Evita strings basura guardadas accidentalmente
+  if (t === 'undefined' || t === 'null' || t.trim() === '') return null;
+  return t;
 }
+
 
 function setAuthToken(token, remember = false) {
   if (!token) return;
@@ -164,12 +171,19 @@ function getUserEmail() {
 }
 
 // Headers comunes
-function getDefaultHeaders() {
-  return {
-    'Content-Type': 'application/json',
-    ...(getAuthToken() ? { 'Authorization': `Bearer ${getAuthToken()}` } : {})
-  };
+function getDefaultHeaders(method = 'GET') {
+  const base = {};
+  // Solo agrega Content-Type cuando vayas a mandar body JSON
+  if (method && method.toUpperCase() !== 'GET' && method.toUpperCase() !== 'HEAD') {
+    base['Content-Type'] = 'application/json';
+  }
+  const token = getAuthToken();
+  if (token) base['Authorization'] = `Bearer ${token}`;
+  // Evita caching agresivo del navegador
+  base['Cache-Control'] = 'no-cache';
+  return base;
 }
+
 
 // ===============================================
 // 3) apiRequest (fetch con manejo de errores y JSON opcional)
@@ -177,10 +191,22 @@ function getDefaultHeaders() {
 async function apiRequest(endpoint, options = {}) {
   const url = `${BACKEND_CONFIG.BASE_URL}${endpoint}`;
   const config = {
-    headers: getDefaultHeaders(),
+    method: 'GET',
+    cache: 'no-store',                  // <- fuerza no-cache del lado fetch
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache',      // <- y del lado request
+      ...(getAuthToken() ? { 'Authorization': `Bearer ${getAuthToken()}` } : {})
+    },
     ...options
   };
+
   const res = await fetch(url, config);
+
+  // Trata 304 como error de cache y no de "no encontrado"
+  if (res.status === 304) {
+    throw new Error('HTTP 304');
+  }
 
   if (!res.ok) {
     let msg = `HTTP ${res.status}`;
@@ -195,6 +221,8 @@ async function apiRequest(endpoint, options = {}) {
   if (!ct.includes('application/json')) return null;
   return res.json();
 }
+
+
 
 // ===============================================
 // 4) Autenticación (front → backend)
@@ -248,41 +276,94 @@ async function updateUserProfile(profileData) {
 // ===============================================
 // 6) Estudiantes (perfil/sesiones) usados por alumnos.js
 // ===============================================
+
+// Asegúrate de tener esta clave en BACKEND_CONFIG.AUTH:
+/// AUTH: { ..., PROFILE: '/auth/profile' }
+
+// ===============================================
+// 6) Estudiantes (perfil/sesiones) usados por alumnos.js
+// ===============================================
 async function getStudentProfile() {
   const email = getUserEmail();
   if (!email) return {};
 
-  // Preferencia: /users/profile?email=  (si no tienes /students/:id)
+  const base = BACKEND_CONFIG.BASE_URL;
+  const headers = getDefaultHeaders();
+
+  // 1) /auth/profile?email=... con "cache-busting"
+  if (true) {
+    try {
+      const res = await fetch(
+        `${base}${BACKEND_CONFIG.AUTH.PROFILE || '/auth/profile'}?email=${encodeURIComponent(email)}&_=${Date.now()}`,
+        { headers, cache: 'no-store' }
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const p = data.profile || data || {};
+      const fullName = p.fullName || [p.firstName, p.lastName].filter(Boolean).join(' ').trim();
+
+      return {
+        firstName: p.firstName || '',
+        lastName : p.lastName  || '',
+        fullName : fullName || '',
+        email    : p.email || email || '',
+        studentId: p.studentId || p.matricula || p.matrícula || ''
+      };
+    } catch (e) {
+      console.warn('getStudentProfile(/auth/profile) fallback -> try /users/profile:', e.message);
+      // continúa con el fallback abajo
+    }
+  }
+
+  // 2) Fallback: /users/profile?email=...
   try {
-    const qs = new URLSearchParams({ email }).toString();
-    return await apiRequest(`${BACKEND_CONFIG.USERS.GET_PROFILE}?${qs}`);
-  } catch (e) {
-    console.warn('getStudentProfile fallback {}:', e.message);
+    const qs = `?${new URLSearchParams({ email, _: Date.now() }).toString()}`;
+    return await apiRequest(`${BACKEND_CONFIG.USERS.GET_PROFILE}${qs}`, { cache: 'no-store' });
+  } catch (e2) {
+    console.warn('getStudentProfile fallback {}:', e2.message);
     return {};
   }
 }
+
+
+
+
+
 
 async function getStudentSessions() {
   const email = getUserEmail();
   if (!email) return [];
 
-  // Si ya tienes /students/sessions?email=
+  const base = BACKEND_CONFIG.BASE_URL;
+
+  // 1) /students/sessions?email=
   try {
-    const qs = new URLSearchParams({ email }).toString();
-    const r = await apiRequest(`/students/sessions?${qs}`);
-    return Array.isArray(r) ? r : (r?.sessions || []);
-  } catch (e) {
-    // Fallback: intenta /sessions?email=
-    try {
-      const qs2 = new URLSearchParams({ email }).toString();
-      const r2 = await apiRequest(`/sessions?${qs2}`);
-      return Array.isArray(r2) ? r2 : (r2?.sessions || []);
-    } catch (e2) {
-      console.warn('getStudentSessions fallback []:', e2.message);
-      return [];
-    }
+    const url = `${base}/students/sessions?${new URLSearchParams({ email })}`;
+    const r = await fetch(url, { headers: getDefaultHeaders() });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const ct = (r.headers.get('content-type') || '').toLowerCase();
+    const data = ct.includes('application/json') ? await r.json() : null;
+    const list = Array.isArray(data) ? data : (data?.sessions || []);
+    return list || [];
+  } catch (e1) {
+    console.warn('getStudentSessions(/students/sessions) falló → intento /sessions:', e1.message);
+  }
+
+  // 2) Fallback: /sessions?email=
+  try {
+    const url2 = `${base}/sessions?${new URLSearchParams({ email })}`;
+    const r2 = await fetch(url2, { headers: getDefaultHeaders() });
+    if (!r2.ok) throw new Error(`HTTP ${r2.status}`);
+    const ct2 = (r2.headers.get('content-type') || '').toLowerCase();
+    const data2 = ct2.includes('application/json') ? await r2.json() : null;
+    const list2 = Array.isArray(data2) ? data2 : (data2?.sessions || []);
+    return list2 || [];
+  } catch (e2) {
+    console.warn('getStudentSessions fallback []:', e2.message);
+    return [];
   }
 }
+
 
 // Próximas sesiones para dashboard Inicio
 function _cryptoRandomId() { return 'id_' + Math.random().toString(36).slice(2, 10); }

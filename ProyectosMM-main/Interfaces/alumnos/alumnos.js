@@ -21,10 +21,19 @@ function initializeApp() {
 }
 
 function setupEventListeners() {
-  // Cierra el menú si haces click fuera
-  document.addEventListener('click', function (e) {
+  // Cierra el menú al hacer click fuera
+  document.addEventListener('click', function(e) {
     if (!e.target.closest('.user-info')) {
       hideUserMenu();
+    }
+  });
+
+  // Abrir perfil con cualquier elemento que tenga data-action="open-profile"
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('[data-action="open-profile"]');
+    if (btn) {
+      e.preventDefault();
+      showProfile();
     }
   });
 
@@ -39,11 +48,23 @@ function setupEventListeners() {
     }
   });
 
-  // También si el avatar/redondel es clickeable y le pusiste data-action
-  const possibleAvatar = document.querySelector('.avatar-initials, #studentInitials');
-  if (possibleAvatar) {
-    possibleAvatar.addEventListener('click', () => showProfile());
-  }
+
+   // ABRIR PERFIL (botón del menú de usuario)
+  document.getElementById('menuProfileBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    showProfile(); // abre y rellena el modal con /auth/profile?email=...
+  });
+
+  // CERRAR PERFIL (botón X del modal)
+  document.getElementById('profileCloseBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    closeProfileModal();
+  });
+
+  // Cerrar si clicas fuera del contenido del modal
+  document.getElementById('profileModal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'profileModal') closeProfileModal();
+  });
 }
 
 // ===================== PERFIL / NOMBRE / INICIALES =====================
@@ -105,7 +126,13 @@ function parseNameParts(profile = {}) {
 // Carga perfil del backend con fallback a storage, y pinta
 function loadStudentProfile() {
   const paint = (obj) => {
-    const parts = parseNameParts(obj || {});
+    // obj viene normalizado por BackendAPI.getStudentProfile()
+    const parts = {
+      firstName: obj.firstName || '',
+      lastName : obj.lastName  || '',
+      fullName : obj.fullName  || [obj.firstName, obj.lastName].filter(Boolean).join(' ').trim(),
+      initials : `${(obj.firstName||'')[0]||''}${(obj.lastName||'')[0]||''}`.toUpperCase()
+    };
     updateStudentWelcomeMessage(parts);
     updateStudentAvatar(parts);
   };
@@ -118,6 +145,7 @@ function loadStudentProfile() {
     paint(getStoredProfileFromStorage());
   }
 }
+
 
 // “Bienvenido, Nombre Apellido”
 function updateStudentWelcomeMessage(parts) {
@@ -415,18 +443,17 @@ function updateDashboardCards(stats) {
 }
 
 // FUNCIONES DEL MENÚ DE USUARIO
-function showUserMenu() {
-  const userMenu = document.getElementById('userMenu');
-  if (userMenu) {
-    userMenu.style.display = userMenu.style.display === 'none' ? 'block' : 'none';
-  }
+function showUserMenu(e) {
+  if (e) e.stopPropagation(); // evita que el click burbujee al listener global
+  const menu = document.getElementById('userMenu');
+  if (!menu) return;
+  const visible = getComputedStyle(menu).display !== 'none';
+  menu.style.display = visible ? 'none' : 'block';
 }
 
 function hideUserMenu() {
-  const userMenu = document.getElementById('userMenu');
-  if (userMenu) {
-    userMenu.style.display = 'none';
-  }
+  const menu = document.getElementById('userMenu');
+  if (menu) menu.style.display = 'none';
 }
 
 // --------- Render del perfil en el modal ---------
@@ -482,66 +509,94 @@ function escapeHtml(str = '') {
     .replaceAll("'", '&#39;');
 }
 
-// --------- Abrir / Cerrar modal de perfil ---------
+// ========= PERFIL: abrir/cerrar modal, cargar datos =========
+
+// Click en "Mi Perfil" del menú
+function openProfileModal(e) {
+  if (e) e.preventDefault();
+  hideUserMenu();          // cierra el menú desplegable
+  showProfile();           // carga y abre
+}
+
+// Muestra el modal y pinta el perfil (si hay backend, lo usa; si no, usa storage o estático)
 async function showProfile() {
-  hideUserMenu();
-
   const modal = document.getElementById('profileModal');
-  const container = document.getElementById('profileBody');
-  if (!modal || !container) return;
+  const body  = document.getElementById('profileBody');
+  if (!modal || !body) return;
 
-  // 1) buscar el email en varios lugares
-  let email = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
-
-  if (!email) {
-    try {
-      const raw = localStorage.getItem('userSession') || sessionStorage.getItem('userSession');
-      if (raw) {
-        const sess = JSON.parse(raw);
-        email = sess?.usuario?.email || sess?.email || '';
-      }
-    } catch {}
-  }
-
-  if (!email) {
-    container.innerHTML = `<p style="color:#c00">No se encontró el email en sesión.</p>`;
-    modal.style.display = 'flex';
-    return;
-  }
-
-  // 2) Llamada al endpoint real
-  try {
-    const res = await fetch(
-      `http://localhost:4000/api/auth/profile?email=${encodeURIComponent(email)}`,
-      { headers: BackendAPI?.getHeaders?.() || {} }
-    );
-    const data = await res.json();
-
-    if (!res.ok || !data?.ok) {
-      throw new Error(data?.message || `Error ${res.status}`);
-    }
-
-    const p = data.profile || {};
-    // Rellenamos con la misma UI bonita
-    renderProfileModal({
-      firstName: p.firstName,
-      lastName: p.lastName,
-      email: p.email,
-      studentId: p.studentId,
-      nombre_completo: [p.firstName, p.lastName].filter(Boolean).join(' ')
-    });
-  } catch (err) {
-    console.error('Perfil error:', err);
-    container.innerHTML = `<p style="color:#c00">No se pudo cargar el perfil.</p>`;
-  }
-
-  // 3) Mostrar modal (usa flex por tu CSS)
+  // Abre primero el modal (aunque la red falle)
   modal.style.display = 'flex';
+  body.innerHTML = '<p>Cargando perfil...</p>';
+
+  try {
+    let data = {};
+    if (window.BackendAPI?.getStudentProfile) {
+      data = await BackendAPI.getStudentProfile(); // {firstName,lastName,fullName,email,studentId}
+    }
+    const p = data?.profile || data || {};
+
+    const firstName = (p.firstName || p.nombre || '').trim();
+    const lastName  = (p.lastName  || p.apellido || p.apellidos || '').trim();
+    const email     = (p.email || '').trim();
+    const matricula = (p.studentId || p.matricula || p.matrícula || '').trim();
+
+    body.innerHTML = `
+      <div class="profile-row">
+        <div class="profile-label">Matrícula</div>
+        <div class="profile-value">${escapeHtml(matricula || '—')}</div>
+      </div>
+      <div class="profile-row">
+        <div class="profile-label">Nombre</div>
+        <div class="profile-value">${escapeHtml([firstName, lastName].filter(Boolean).join(' ') || '—')}</div>
+      </div>
+      <div class="profile-row">
+        <div class="profile-label">Email</div>
+        <div class="profile-value">${escapeHtml(email || '—')}</div>
+      </div>
+    `;
+  } catch (err) {
+    console.warn('showProfile:', err?.message || err);
+    // Fallback duro para que SIEMPRE veas algo
+    body.innerHTML = `
+      <div class="profile-row">
+        <div class="profile-label">Matrícula</div>
+        <div class="profile-value">${escapeHtml(localStorage.getItem('matricula') || '—')}</div>
+      </div>
+      <div class="profile-row">
+        <div class="profile-label">Nombre</div>
+        <div class="profile-value">${escapeHtml(localStorage.getItem('userFullName') || 'Usuario')}</div>
+      </div>
+      <div class="profile-row">
+        <div class="profile-label">Email</div>
+        <div class="profile-value">${escapeHtml(BackendAPI?.getUserEmail?.() || '')}</div>
+      </div>
+    `;
+  }
 }
 
 function closeProfileModal() {
   const modal = document.getElementById('profileModal');
   if (modal) modal.style.display = 'none';
+}
+
+// Cerrar al hacer clic en el overlay
+document.addEventListener('click', (e) => {
+  const modal = document.getElementById('profileModal');
+  if (!modal || modal.style.display === 'none') return;
+  const card = modal.querySelector('.modal-card');
+  if (e.target === modal) closeProfileModal();      // clic fuera
+  if (card && card.contains(e.target)) e.stopPropagation();
+});
+
+// Cerrar con Esc
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeProfileModal();
+});
+
+
+function closeUserMenu(){
+  const menu = document.getElementById('userMenu');
+  if(menu) menu.style.display = 'none';
 }
 
 function showSettings() {
@@ -1641,6 +1696,8 @@ function getNotificationIcon(type) {
   const icons = { success: 'check-circle', error: 'exclamation-circle', info: 'info-circle' };
   return icons[type] || 'info-circle';
 }
+
+
 
 
 
